@@ -1,36 +1,61 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# OGOROD
 
-## Getting Started
+Offline-first PWA для городу. Три шари даних: глобальний каталог рослин (KB), господарство (tenant), пристрій (Dexie + outbox).
 
-First, run the development server:
+Поточний зріз — **фундамент**: PostgreSQL + Drizzle, Better Auth, Dexie/черга синку з OCC і курсором, Docker. UI спостережень ще немає.
+
+Деталі: [docs/architecture.md](docs/architecture.md).
+
+## Швидкий старт (розробка)
+
+Потрібні Docker і Node 22+.
 
 ```bash
-npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
+git clone <repo>
+cd ogorod
+cp .env.example .env
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+У `.env` задайте `BETTER_AUTH_SECRET` (наприклад `openssl rand -base64 32`). Не комітьте цей файл.
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+```bash
+docker compose up -d postgres redis minio
+npm install
+npm run db:migrate
+npm run db:seed
+npm run dev
+```
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+Відкрийте [http://localhost:3000](http://localhost:3000), зареєструйте акаунт. Після signup створюється господарство «Мій город».
 
-## Learn More
+Seed KB додає один таксон: `Solanum lycopersicum` / Помідор, сорт «Бичаче серце» — один раз на всю систему, не на користувача.
 
-To learn more about Next.js, take a look at the following resources:
+## Self-host
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+Той самий репозиторій і образ. Спочатку Postgres, міграції й seed, потім увесь стек:
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
+```bash
+cp .env.example .env
+# заповніть BETTER_AUTH_SECRET та інші секрети
+docker compose up -d postgres redis minio
+npm run db:migrate
+npm run db:seed
+docker compose --profile full up -d
+```
 
-## Deploy on Vercel
+Піднімаються Postgres, Redis, MinIO і застосунок. Caddy / TLS на ваш reverse proxy.
 
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
+## Скрипти
 
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+| Команда | Що робить |
+| --- | --- |
+| `npm run dev` | Next.js |
+| `npm run db:up` | Postgres у Docker |
+| `npm run db:generate` | нові SQL-міграції з Drizzle-схеми |
+| `npm run db:migrate` | застосувати міграції |
+| `npm run db:seed` | KB-seed (томат) |
+| `npm run typecheck` | `next typegen` + `tsc --noEmit` |
+
+## Секрети
+
+У GitHub немає реальних паролів. Шаблон змінних — `.env.example`. `.env` у `.gitignore`.
