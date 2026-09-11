@@ -42,6 +42,7 @@ export type LocalPlanting = {
   cultivarId?: string | null
   nickname?: string | null
   plantedAt?: string | null
+  quantity: number
   version: number
   syncStatus: SyncStatus
   createdAt: string

@@ -47,24 +47,7 @@ function parseCare(value: unknown): PlantCareState {
   return next
 }
 
-function prune(state: PlantCareState, day: string): PlantCareState {
-  const next: PlantCareState = {}
-  for (const [plantId, marks] of Object.entries(state)) {
-    const kept: PlantCareDay = {}
-    if (marks.water === day) {
-      kept.water = day
-    }
-    if (marks.feed === day) {
-      kept.feed = day
-    }
-    if (kept.water || kept.feed) {
-      next[plantId] = kept
-    }
-  }
-  return next
-}
-
-export function loadPlantCare(now = new Date()): PlantCareState {
+export function loadPlantCare(): PlantCareState {
   if (typeof window === "undefined") {
     return {}
   }
@@ -73,10 +56,31 @@ export function loadPlantCare(now = new Date()): PlantCareState {
     if (!raw) {
       return {}
     }
-    return prune(parseCare(JSON.parse(raw)), todayKey(now))
+    return parseCare(JSON.parse(raw))
   } catch {
     return {}
   }
+}
+
+export function parseCareDay(day: string) {
+  const match = /^(\d{4})-(\d{2})-(\d{2})$/.exec(day)
+  if (!match) {
+    return null
+  }
+  const date = new Date(
+    Number(match[1]),
+    Number(match[2]) - 1,
+    Number(match[3])
+  )
+  return Number.isNaN(date.getTime()) ? null : date
+}
+
+export function getCareDate(
+  state: PlantCareState,
+  plantId: string,
+  kind: CareKind
+) {
+  return state[plantId]?.[kind]
 }
 
 function savePlantCare(state: PlantCareState) {

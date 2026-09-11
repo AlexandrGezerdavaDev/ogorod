@@ -9,7 +9,6 @@ import { createPlanting, useSpaces } from "@/features/farm"
 import { useKbSpecies } from "@/features/kb/use-kb-species"
 import { catalogCommonName } from "@/i18n/format"
 import { useI18n } from "@/i18n/provider"
-import { useIsMobile } from "@/hooks/use-mobile"
 import { cn } from "@/lib/utils"
 import { Button } from "@/components/ui/button"
 import {
@@ -50,7 +49,6 @@ export function AddPlanting({
   defaultFieldId?: string | null
 }) {
   const { locale, messages: m } = useI18n()
-  const isMobile = useIsMobile()
   const { data: session } = authClient.useSession()
   const { data: kb } = useKbSpecies()
   const [open, setOpen] = React.useState(false)
@@ -77,6 +75,7 @@ export function AddPlanting({
     const name = String(form.get("name") ?? "").trim()
     const fieldId = String(form.get("fieldId") ?? "").trim()
     const plantedAt = String(form.get("plantedAt") ?? "").trim()
+    const quantity = Number(form.get("quantity"))
 
     if (!speciesId) {
       setError(m.plants.speciesRequired)
@@ -88,6 +87,10 @@ export function AddPlanting({
     }
     if (!fieldId) {
       setError(m.plants.spaceRequired)
+      return
+    }
+    if (!Number.isInteger(quantity) || quantity < 1) {
+      setError(m.plants.quantityInvalid)
       return
     }
 
@@ -106,6 +109,7 @@ export function AddPlanting({
         fieldId,
         cultivarId: cultivar?.id ?? null,
         plantedAt: plantedAt || null,
+        quantity,
       })
       toast.success(m.plants.saved)
       setOpen(false)
@@ -132,8 +136,8 @@ export function AddPlanting({
       <SheetTrigger
         render={
           <Button
-            size={isMobile ? "lg" : "default"}
-            className={cn(isMobile && "min-h-11 text-base", className)}
+            size="lg"
+            className={cn("min-h-12 gap-2 px-5 text-base [&_svg:not([class*='size-'])]:size-5", className)}
           />
         }
       >
@@ -224,6 +228,20 @@ export function AddPlanting({
                 name="plantedAt"
                 type="date"
                 defaultValue={todayIsoDate()}
+              />
+            </Field>
+            <Field data-invalid={error === m.plants.quantityInvalid || undefined}>
+              <FieldLabel htmlFor="plant-quantity">{m.plants.quantity}</FieldLabel>
+              <Input
+                id="plant-quantity"
+                name="quantity"
+                inputMode="numeric"
+                type="number"
+                min="1"
+                step="1"
+                required
+                defaultValue="1"
+                aria-invalid={error === m.plants.quantityInvalid || undefined}
               />
             </Field>
             {error ? <FieldError>{error}</FieldError> : null}

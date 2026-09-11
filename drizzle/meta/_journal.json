@@ -43,6 +43,13 @@
       "when": 1788951746016,
       "tag": "0005_lovely_ego",
       "breakpoints": true
+    },
+    {
+      "idx": 6,
+      "version": "7",
+      "when": 1789133435217,
+      "tag": "0006_zippy_chamber",
+      "breakpoints": true
     }
   ]
 }

@@ -1,6 +1,6 @@
 "use client"
 
-import { useEffect, useMemo, useState } from "react"
+import { useMemo, useState } from "react"
 import { format, parseISO } from "date-fns"
 import {
   BookOpenIcon,
@@ -18,8 +18,10 @@ import {
   useSpaces,
   type DisplayPlanting,
 } from "@/features/farm"
-import { usePlantCare } from "@/features/plants/use-plant-care"
 import { AddPlanting } from "@/components/add-planting"
+import { EditPlantingQuantity } from "@/components/edit-planting-quantity"
+import { PlantCareActions } from "@/components/plant-care-actions"
+import { PlantCardImage } from "@/components/plant-card-image"
 import { PlantProfileSheet } from "@/components/plant-profile-sheet"
 import { cn } from "@/lib/utils"
 import {
@@ -55,7 +57,6 @@ import {
 import { Checkbox } from "@/components/ui/checkbox"
 import {
   Empty,
-  EmptyContent,
   EmptyDescription,
   EmptyHeader,
   EmptyMedia,
@@ -107,18 +108,12 @@ export function PlantsView() {
   const { plantings } = usePlantings({ fieldId })
 
   return (
-    <div className="flex flex-col gap-4 pb-16 md:pb-0">
+    <div className="flex flex-col gap-4 pb-24 md:pb-20">
       <Tabs defaultValue="mine" className="gap-4">
-        <div className="flex items-start justify-between gap-3">
-          <div>
-            <h1 className="font-heading text-2xl font-medium tracking-tight">
-              {space?.label ?? m.pages.plants.title}
-            </h1>
-          </div>
-          <AddPlanting
-            className="hidden md:inline-flex"
-            defaultFieldId={fieldId}
-          />
+        <div>
+          <h1 className="font-heading text-2xl font-medium tracking-tight">
+            {space?.label ?? m.pages.plants.title}
+          </h1>
         </div>
         <TabsList variant="line" className="w-full">
           <TabsTrigger value="mine">{m.plants.mine}</TabsTrigger>
@@ -139,16 +134,14 @@ export function PlantsView() {
           <CatalogPlants />
         </TabsContent>
       </Tabs>
-      {plantings.length > 0 ? (
-        <div className="pointer-events-none fixed inset-x-4 z-30 flex justify-end md:hidden bottom-[calc(6.5rem+env(safe-area-inset-bottom))]">
-          <div className="pointer-events-auto">
-            <AddPlanting
-              className="rounded-full px-4 shadow-lg"
-              defaultFieldId={fieldId}
-            />
-          </div>
+      <div className="pointer-events-none fixed inset-x-4 z-30 flex justify-end bottom-[calc(6.5rem+env(safe-area-inset-bottom))] md:bottom-6 md:right-6 md:left-auto">
+        <div className="pointer-events-auto">
+          <AddPlanting
+            className="rounded-full px-4 shadow-lg"
+            defaultFieldId={fieldId}
+          />
         </div>
-      ) : null}
+      </div>
     </div>
   )
 }
@@ -180,7 +173,6 @@ function MyPlants({
 }) {
   const { locale, messages: m } = useI18n()
   const { plantings, isPending } = usePlantings({ fieldId })
-  const { isDone, toggle } = usePlantCare()
   const [selected, setSelected] = useState<DisplayPlanting | null>(null)
 
   if (isPending) {
@@ -208,9 +200,6 @@ function MyPlants({
             {spaceLabel ? m.plants.emptySpaceDesc : m.plants.emptyDesc}
           </EmptyDescription>
         </EmptyHeader>
-        <EmptyContent className="md:hidden">
-          <AddPlanting className="w-full" defaultFieldId={fieldId} />
-        </EmptyContent>
       </Empty>
     )
   }
@@ -259,10 +248,11 @@ function MyPlants({
                       <CardDescription>{plant.cultivarName}</CardDescription>
                     </div>
                     <div
-                      className="shrink-0"
+                      className="flex shrink-0 items-center gap-0.5"
                       onClick={(event) => event.stopPropagation()}
                       onKeyDown={(event) => event.stopPropagation()}
                     >
+                      <EditPlantingQuantity plant={plant} />
                       <DeletePlantingButton plant={plant} />
                     </div>
                   </div>
@@ -274,40 +264,16 @@ function MyPlants({
                       {m.status[status]}
                     </Badge>
                   </div>
+                  <p className="text-sm text-muted-foreground">
+                    {interpolate(m.plants.quantityCount, {
+                      count: plant.quantity,
+                    })}
+                  </p>
                   <p className="text-xs text-muted-foreground">{planted}</p>
                 </CardContent>
               </div>
-              <CardFooter className="gap-4">
-                <Field orientation="horizontal" className="w-auto">
-                  <Checkbox
-                    id={`plant-${plant.id}-water`}
-                    checked={isDone(plant.id, "water")}
-                    aria-label={interpolate(m.plants.markWaterAria, {
-                      name: title,
-                    })}
-                    onCheckedChange={(checked) =>
-                      toggle(plant.id, "water", checked === true)
-                    }
-                  />
-                  <FieldLabel htmlFor={`plant-${plant.id}-water`} className="font-normal">
-                    {m.plants.markWater}
-                  </FieldLabel>
-                </Field>
-                <Field orientation="horizontal" className="w-auto">
-                  <Checkbox
-                    id={`plant-${plant.id}-feed`}
-                    checked={isDone(plant.id, "feed")}
-                    aria-label={interpolate(m.plants.markFeedAria, {
-                      name: title,
-                    })}
-                    onCheckedChange={(checked) =>
-                      toggle(plant.id, "feed", checked === true)
-                    }
-                  />
-                  <FieldLabel htmlFor={`plant-${plant.id}-feed`} className="font-normal">
-                    {m.plants.markFeed}
-                  </FieldLabel>
-                </Field>
+              <CardFooter className="w-full">
+                <PlantCareActions plantId={plant.id} name={title} />
               </CardFooter>
             </Card>
           )
@@ -324,7 +290,7 @@ function MyPlants({
         }
         description={
           selected
-            ? `${selected.bed} · ${plantedCopy(selected.plantedAt, locale, m.plants.planted, m.plants.plantedUnknown)}`
+            ? `${selected.bed} · ${interpolate(m.plants.quantityCount, { count: selected.quantity })} · ${plantedCopy(selected.plantedAt, locale, m.plants.planted, m.plants.plantedUnknown)}`
             : null
         }
         open={selected !== null}
@@ -638,33 +604,6 @@ function CatalogPlants() {
           }
         }}
       />
-    </div>
-  )
-}
-
-function PlantCardImage({ src, alt }: { src: string; alt: string }) {
-  const [failed, setFailed] = useState(false)
-
-  useEffect(() => {
-    setFailed(false)
-  }, [src])
-
-  return (
-    <div className="relative aspect-[16/10] w-full bg-muted">
-      {src && !failed ? (
-        // Catalog mock URLs (public/plants); plain img keeps the mock free of next/image remote config.
-        // eslint-disable-next-line @next/next/no-img-element
-        <img
-          src={src}
-          alt={alt}
-          className="size-full object-cover"
-          onError={() => setFailed(true)}
-        />
-      ) : (
-        <div className="flex size-full items-center justify-center text-muted-foreground">
-          <LeafIcon className="size-10" />
-        </div>
-      )}
     </div>
   )
 }

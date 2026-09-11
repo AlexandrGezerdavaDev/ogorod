@@ -12,7 +12,7 @@ export {
   updateSeedLotQuantity,
 } from "./seed-lots"
 export type { CreateSeedLotInput, SeedUnit } from "./seed-lots"
-export { createPlanting, deletePlanting } from "./plantings"
+export { createPlanting, deletePlanting, updatePlantingQuantity } from "./plantings"
 export type { CreatePlantingInput } from "./plantings"
 export { createField, updateField } from "./fields"
 export { useSeedLots } from "./use-seed-lots"

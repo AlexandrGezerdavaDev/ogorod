@@ -13,7 +13,9 @@ import { format } from "date-fns"
 
 import { isAgedSeedLot, tasks } from "@/lib/garden-data"
 import { usePlantings, useSeedLots } from "@/features/farm"
+import { usePlantCare } from "@/features/plants/use-plant-care"
 import { Button } from "@/components/ui/button"
+import { PlantCareActions } from "@/components/plant-care-actions"
 import {
   Card,
   CardContent,
@@ -32,22 +34,27 @@ export function HomeView({ name }: { name: string | null }) {
   const { locale, messages: m } = useI18n()
   const { lots } = useSeedLots()
   const { plantings } = usePlantings()
+  const { isDone } = usePlantCare()
   const agedLots = lots.filter((lot) => isAgedSeedLot(lot.packedAt))
+  const needWater = plantings.filter((plant) => !isDone(plant.id, "water")).length
   const date = format(new Date(2026, 8, 8), "d MMMM", {
     locale: dateFnsLocale(locale),
   })
 
   return (
     <div className="flex flex-col gap-4">
-      <div>
-        <h1 className="font-heading text-2xl font-medium tracking-tight">
-          {name
-            ? interpolate(m.home.greetingName, { name })
-            : m.home.greeting}
-        </h1>
-        <p className="text-muted-foreground">
-          {interpolate(m.home.todayLine, { date, count: 0 })}
-        </p>
+      <div className="flex items-center justify-between gap-4">
+        <div className="min-w-0 flex-1">
+          <h1 className="truncate font-heading text-2xl font-medium tracking-tight">
+            {name
+              ? interpolate(m.home.greetingName, { name })
+              : m.home.greeting}
+          </h1>
+          <p className="truncate text-muted-foreground">
+            {interpolate(m.home.todayLine, { date, count: needWater })}
+          </p>
+        </div>
+        <WeatherCard />
       </div>
 
       <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
@@ -59,7 +66,7 @@ export function HomeView({ name }: { name: string | null }) {
         />
         <StatCard
           title={m.home.statWater}
-          value="0"
+          value={String(needWater)}
           hint={m.home.statWaterHint}
           icon={DropletsIcon}
         />
@@ -91,23 +98,29 @@ export function HomeView({ name }: { name: string | null }) {
             {plantings.length === 0 ? (
               <p className="text-sm text-muted-foreground">{m.plants.emptyDesc}</p>
             ) : (
-              plantings.slice(0, 4).map((plant) => (
-                <div
-                  key={plant.id}
-                  className="flex items-center justify-between gap-3 rounded-lg border px-3 py-2"
-                >
-                  <div className="min-w-0">
-                    <p className="truncate font-medium">
-                      {plant.speciesName
-                        ? `${plant.speciesName} · ${plant.cultivarName}`
-                        : plant.cultivarName}
-                    </p>
-                    <p className="truncate text-sm text-muted-foreground">
-                      {plant.bed}
-                    </p>
+              plantings.slice(0, 4).map((plant) => {
+                const title = plant.speciesName
+                  ? `${plant.speciesName} · ${plant.cultivarName}`
+                  : plant.cultivarName
+                return (
+                  <div
+                    key={plant.id}
+                    className="flex items-center justify-between gap-3 rounded-lg border px-3 py-2"
+                  >
+                    <div className="min-w-0">
+                      <p className="truncate font-medium">{title}</p>
+                      <p className="truncate text-sm text-muted-foreground">
+                        {plant.bed}
+                        {" · "}
+                        {interpolate(m.plants.quantityCount, {
+                          count: plant.quantity,
+                        })}
+                      </p>
+                    </div>
+                    <PlantCareActions plantId={plant.id} name={title} compact />
                   </div>
-                </div>
-              ))
+                )
+              })
             )}
           </CardContent>
           <CardFooter>
@@ -117,29 +130,26 @@ export function HomeView({ name }: { name: string | null }) {
           </CardFooter>
         </Card>
 
-        <div className="flex flex-col gap-4">
-          <WeatherCard />
-          <Card>
-            <CardHeader>
-              <CardTitle>{m.home.quickTitle}</CardTitle>
-              <CardDescription>{m.home.quickDesc}</CardDescription>
-            </CardHeader>
-            <CardContent className="flex flex-col gap-2">
-              <Button render={<Link href="/scan" />} nativeButton={false}>
-                <ScanLineIcon data-icon="inline-start" />
-                {m.home.scanPlant}
-              </Button>
-              <Button variant="outline" render={<Link href="/calendar" />} nativeButton={false}>
-                <SunIcon data-icon="inline-start" />
-                {m.home.openCalendar}
-              </Button>
-              <Button variant="outline" render={<Link href="/seeds" />} nativeButton={false}>
-                <SproutIcon data-icon="inline-start" />
-                {m.home.openSeeds}
-              </Button>
-            </CardContent>
-          </Card>
-        </div>
+        <Card>
+          <CardHeader>
+            <CardTitle>{m.home.quickTitle}</CardTitle>
+            <CardDescription>{m.home.quickDesc}</CardDescription>
+          </CardHeader>
+          <CardContent className="flex flex-col gap-2">
+            <Button render={<Link href="/scan" />} nativeButton={false}>
+              <ScanLineIcon data-icon="inline-start" />
+              {m.home.scanPlant}
+            </Button>
+            <Button variant="outline" render={<Link href="/calendar" />} nativeButton={false}>
+              <SunIcon data-icon="inline-start" />
+              {m.home.openCalendar}
+            </Button>
+            <Button variant="outline" render={<Link href="/seeds" />} nativeButton={false}>
+              <SproutIcon data-icon="inline-start" />
+              {m.home.openSeeds}
+            </Button>
+          </CardContent>
+        </Card>
       </div>
     </div>
   )

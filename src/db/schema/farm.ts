@@ -49,6 +49,7 @@ export const planting = pgTable(
     }),
     nickname: text("nickname"),
     plantedAt: timestamp("planted_at", { withTimezone: true }),
+    quantity: integer("quantity").notNull().default(1),
     ...syncColumns,
   },
   (table) => [

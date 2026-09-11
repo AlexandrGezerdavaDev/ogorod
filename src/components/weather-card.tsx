@@ -1,47 +1,43 @@
 "use client"
 
 import Link from "next/link"
-import { CloudSunIcon, SnowflakeIcon } from "lucide-react"
+import {
+  CloudFogIcon,
+  CloudIcon,
+  CloudLightningIcon,
+  CloudRainIcon,
+  CloudSunIcon,
+  SnowflakeIcon,
+  SunIcon,
+} from "lucide-react"
 
 import { firstPlacedGarden } from "@/features/settings/preferences"
 import { usePreferences } from "@/features/settings/provider"
 import { weatherKind } from "@/features/weather/codes"
+import type { WeatherKind } from "@/features/weather/types"
 import { useWeather } from "@/features/weather/use-weather"
-import { formatPlaceLabel } from "@/features/geo/types"
 import { gardens } from "@/lib/garden-data"
-import { formatRelativePast, interpolate } from "@/i18n/format"
-import { useI18n } from "@/i18n/provider"
-import { Badge } from "@/components/ui/badge"
 import { Button } from "@/components/ui/button"
-import {
-  Card,
-  CardContent,
-  CardDescription,
-  CardFooter,
-  CardHeader,
-  CardTitle,
-} from "@/components/ui/card"
-import {
-  Empty,
-  EmptyContent,
-  EmptyDescription,
-  EmptyHeader,
-  EmptyMedia,
-  EmptyTitle,
-} from "@/components/ui/empty"
 import { Skeleton } from "@/components/ui/skeleton"
+import { useI18n } from "@/i18n/provider"
+
+const weatherIcons: Record<WeatherKind, typeof SunIcon> = {
+  clear: SunIcon,
+  clouds: CloudSunIcon,
+  fog: CloudFogIcon,
+  rain: CloudRainIcon,
+  snow: SnowflakeIcon,
+  thunder: CloudLightningIcon,
+  other: CloudIcon,
+}
 
 function formatTemp(value: number, unit: "c" | "f") {
   const rounded = Math.round(value)
-  return unit === "f" ? `${rounded}°F` : `${rounded}°C`
-}
-
-function formatMm(value: number, unit: string) {
-  return `${value.toFixed(value >= 10 ? 0 : 1)} ${unit}`
+  return unit === "f" ? `${rounded}°F` : `${rounded}°`
 }
 
 export function WeatherCard() {
-  const { locale, messages: m } = useI18n()
+  const { messages: m } = useI18n()
   const { prefs } = usePreferences()
   const placed = firstPlacedGarden(
     prefs,
@@ -58,101 +54,70 @@ export function WeatherCard() {
   const snapshot = weather.data
   const today = snapshot?.daily[0]
   const unit = snapshot?.temperatureUnit ?? prefs.garden.temperature
-  const placeLabel = placed
-    ? formatPlaceLabel({
-        city: placed.place.city,
-        region: placed.place.region,
-        country: placed.place.country,
-      })
-    : ""
+
+  if (!placed) {
+    return (
+      <Button
+        variant="ghost"
+        size="sm"
+        className="ml-auto shrink-0 text-muted-foreground"
+        render={<Link href="/settings" />}
+        nativeButton={false}
+      >
+        <CloudSunIcon data-icon="inline-start" />
+        {m.home.weather.emptyTitle}
+      </Button>
+    )
+  }
+
+  if (weather.isPending && !snapshot) {
+    return (
+      <div className="ml-auto flex shrink-0 items-center gap-1.5">
+        <Skeleton className="size-5 rounded-full" />
+        <Skeleton className="h-5 w-10" />
+        <Skeleton className="hidden h-4 w-16 sm:block" />
+      </div>
+    )
+  }
+
+  if (!snapshot) {
+    return (
+      <p className="ml-auto max-w-28 shrink-0 text-right text-xs text-muted-foreground">
+        {m.home.weather.error}
+      </p>
+    )
+  }
+
+  const kind = weatherKind(snapshot.current.weatherCode)
+  const Icon = weatherIcons[kind]
+  const range = today
+    ? `${Math.round(today.tMin)}°/${Math.round(today.tMax)}°`
+    : null
 
   return (
-    <Card>
-      <CardHeader>
-        <CardTitle>{m.home.weather.title}</CardTitle>
-        <CardDescription>
-          {placeLabel || m.home.weather.emptyTitle}
-        </CardDescription>
-      </CardHeader>
-      <CardContent>
-        {!placed ? (
-          <Empty className="border py-6">
-            <EmptyHeader>
-              <EmptyMedia variant="icon">
-                <CloudSunIcon />
-              </EmptyMedia>
-              <EmptyTitle>{m.home.weather.emptyTitle}</EmptyTitle>
-              <EmptyDescription>{m.home.weather.emptyDesc}</EmptyDescription>
-            </EmptyHeader>
-            <EmptyContent>
-              <Button
-                variant="outline"
-                size="sm"
-                render={<Link href="/settings" />}
-                nativeButton={false}
-              >
-                {m.home.weather.openSettings}
-              </Button>
-            </EmptyContent>
-          </Empty>
-        ) : weather.isPending && !snapshot ? (
-          <div className="flex flex-col gap-3">
-            <Skeleton className="h-10 w-24" />
-            <Skeleton className="h-4 w-40" />
-            <Skeleton className="h-4 w-32" />
-          </div>
-        ) : snapshot ? (
-          <div className="flex flex-col gap-3">
-            <div className="flex items-start justify-between gap-3">
-              <div>
-                <p className="text-3xl font-medium tracking-tight">
-                  {formatTemp(snapshot.current.temperature, unit)}
-                </p>
-                <p className="text-sm text-muted-foreground">
-                  {m.home.weather.condition[weatherKind(snapshot.current.weatherCode)]}
-                </p>
-              </div>
-              <Badge variant={snapshot.frost ? "destructive" : "secondary"}>
-                {snapshot.frost ? (
-                  <SnowflakeIcon />
-                ) : null}
-                {snapshot.frost ? m.home.weather.frost : m.home.weather.frostNone}
-              </Badge>
-            </div>
-            {today ? (
-              <div className="flex flex-col gap-1 text-sm">
-                <p>
-                  {m.home.weather.today}
-                  {": "}
-                  {formatTemp(today.tMin, unit)}
-                  {" / "}
-                  {formatTemp(today.tMax, unit)}
-                </p>
-                <p className="text-muted-foreground">
-                  {m.home.weather.precipitation}
-                  {": "}
-                  {formatMm(today.precipitation, m.home.weather.mm)}
-                  {today.et0 != null
-                    ? ` · ${m.home.weather.et0} ${formatMm(today.et0, m.home.weather.mm)}`
-                    : ""}
-                </p>
-              </div>
-            ) : null}
-            {snapshot.fromCache ? (
-              <p className="text-xs text-muted-foreground">
-                {interpolate(m.home.weather.stale, {
-                  when: formatRelativePast(locale, new Date(snapshot.fetchedAt)),
-                })}
-              </p>
-            ) : null}
-          </div>
-        ) : (
-          <p className="text-sm text-muted-foreground">{m.home.weather.error}</p>
-        )}
-      </CardContent>
-      <CardFooter>
-        <p className="text-xs text-muted-foreground">{m.home.weather.attribution}</p>
-      </CardFooter>
-    </Card>
+    <div
+      className="ml-auto flex shrink-0 items-center gap-1.5 whitespace-nowrap"
+      title={
+        range
+          ? `${m.home.weather.condition[kind]} · ${range} · ${m.home.weather.attribution}`
+          : m.home.weather.attribution
+      }
+    >
+      <Icon className="size-5 text-muted-foreground" aria-hidden />
+      <span className="text-lg font-medium tabular-nums leading-none">
+        {formatTemp(snapshot.current.temperature, unit)}
+      </span>
+      <span className="hidden text-sm text-muted-foreground sm:inline">
+        {m.home.weather.condition[kind]}
+      </span>
+      {range ? (
+        <span className="hidden text-xs text-muted-foreground md:inline">
+          {range}
+        </span>
+      ) : null}
+      {snapshot.frost ? (
+        <SnowflakeIcon className="size-3.5 text-destructive" aria-label={m.home.weather.frost} />
+      ) : null}
+    </div>
   )
 }

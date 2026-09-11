@@ -6,6 +6,7 @@ import { SproutIcon, Trash2Icon } from "lucide-react"
 import { toast } from "sonner"
 
 import { deleteSeedLot, useSeedLots, type DisplaySeedLot } from "@/features/farm"
+import { getPlantProfile } from "@/features/kb/plant-profiles"
 import {
   isAgedSeedLot,
   seedLotAgeYears,
@@ -13,6 +14,7 @@ import {
 } from "@/lib/garden-data"
 import { AddSeedLot } from "@/components/add-seed-lot"
 import { EditSeedQuantity } from "@/components/edit-seed-quantity"
+import { PlantCardImage } from "@/components/plant-card-image"
 import { SeedPlantSheet } from "@/components/seed-plant-sheet"
 import {
   AlertDialog,
@@ -36,7 +38,6 @@ import {
 } from "@/components/ui/card"
 import {
   Empty,
-  EmptyContent,
   EmptyDescription,
   EmptyHeader,
   EmptyMedia,
@@ -68,23 +69,20 @@ export function SeedsView() {
   })
 
   return (
-    <div className="flex flex-col gap-4 pb-16 md:pb-0">
-      <div className="flex items-start justify-between gap-3">
-        <div>
-          <h1 className="font-heading text-2xl font-medium tracking-tight">
-            {m.pages.seeds.title}
-          </h1>
-          <p className="text-muted-foreground">
-            {interpolate(m.seeds.count, { count: lots.length })}
-          </p>
-        </div>
-        <AddSeedLot className="hidden md:inline-flex" />
+    <div className="flex flex-col gap-4 pb-24 md:pb-20">
+      <div>
+        <h1 className="font-heading text-2xl font-medium tracking-tight">
+          {m.pages.seeds.title}
+        </h1>
+        <p className="text-muted-foreground">
+          {interpolate(m.seeds.count, { count: lots.length })}
+        </p>
       </div>
 
       {isPending ? (
-        <div className="grid gap-4 sm:grid-cols-2 xl:grid-cols-3">
-          <Skeleton className="h-40 rounded-xl" />
-          <Skeleton className="h-40 rounded-xl" />
+        <div className="grid gap-3 lg:grid-cols-2">
+          <Skeleton className="h-40 rounded-xl md:h-36" />
+          <Skeleton className="h-40 rounded-xl md:h-36" />
         </div>
       ) : sorted.length === 0 ? (
         <Empty className="border">
@@ -95,12 +93,9 @@ export function SeedsView() {
             <EmptyTitle>{m.seeds.emptyTitle}</EmptyTitle>
             <EmptyDescription>{m.seeds.emptyDesc}</EmptyDescription>
           </EmptyHeader>
-          <EmptyContent className="md:hidden">
-            <AddSeedLot className="w-full" />
-          </EmptyContent>
         </Empty>
       ) : (
-        <div className="grid gap-4 sm:grid-cols-2 xl:grid-cols-3">
+        <div className="grid gap-3 lg:grid-cols-2">
           {sorted.map((lot) => {
             const aged = isAgedSeedLot(lot.packedAt)
             const packedDate = lot.packedAt ? parseISO(lot.packedAt) : null
@@ -115,7 +110,7 @@ export function SeedsView() {
                 tabIndex={0}
                 aria-label={title}
                 className={cn(
-                  "cursor-pointer transition-colors hover:bg-muted/40",
+                  "cursor-pointer gap-0 overflow-hidden py-0 transition-colors hover:bg-muted/40",
                   "focus-visible:ring-3 focus-visible:ring-ring/50 focus-visible:outline-none"
                 )}
                 onClick={() => setSelected(lot)}
@@ -126,65 +121,74 @@ export function SeedsView() {
                   }
                 }}
               >
-                <CardHeader>
-                  <div className="flex items-start justify-between gap-2">
-                    <div className="min-w-0 flex-1">
-                      <CardTitle>{title}</CardTitle>
-                      <CardDescription>
-                        {formatSeedQuantityLabel(m, lot.quantity, lot.unit)}
-                      </CardDescription>
-                    </div>
-                    <div
-                      className="flex shrink-0 items-center gap-0.5"
-                      onClick={(event) => event.stopPropagation()}
-                      onKeyDown={(event) => event.stopPropagation()}
-                    >
-                      <EditSeedQuantity lot={lot} />
-                      <DeleteSeedLotButton lot={lot} />
-                    </div>
+                <div className="flex flex-col md:flex-row md:items-stretch">
+                  <PlantCardImage
+                    src={getPlantProfile(lot.speciesId).imageUrl}
+                    alt={lot.speciesName || lot.cultivarName}
+                  />
+                  <div className="flex min-w-0 flex-1 flex-col py-(--card-spacing)">
+                    <CardHeader>
+                      <div className="flex items-start justify-between gap-2">
+                        <div className="min-w-0 flex-1">
+                          <CardTitle>{title}</CardTitle>
+                          <CardDescription>
+                            {formatSeedQuantityLabel(m, lot.quantity, lot.unit)}
+                          </CardDescription>
+                        </div>
+                        <div
+                          className="flex shrink-0 items-center gap-0.5"
+                          onClick={(event) => event.stopPropagation()}
+                          onKeyDown={(event) => event.stopPropagation()}
+                        >
+                          <EditSeedQuantity lot={lot} />
+                          <DeleteSeedLotButton lot={lot} />
+                        </div>
+                      </div>
+                    </CardHeader>
+                    <CardContent className="flex flex-col gap-3">
+                      <div className="flex items-center justify-between gap-2">
+                        <span className="text-muted-foreground">
+                          {packedValid
+                            ? interpolate(m.seeds.packed, {
+                                date: format(packedDate, "d MMMM yyyy", {
+                                  locale: dateFnsLocale(locale),
+                                }),
+                              })
+                            : m.seeds.packedUnknown}
+                        </span>
+                        <Badge variant={aged ? "destructive" : "secondary"}>
+                          {aged && lot.packedAt
+                            ? formatYears(
+                                locale,
+                                Math.max(
+                                  SEED_LOT_AGE_YEARS,
+                                  seedLotAgeYears(lot.packedAt)
+                                )
+                              )
+                            : m.seeds.fresh}
+                        </Badge>
+                      </div>
+                      {aged ? (
+                        <p className="text-sm text-muted-foreground">
+                          {interpolate(m.seeds.aged, {
+                            age: formatYears(locale, SEED_LOT_AGE_YEARS),
+                          })}
+                        </p>
+                      ) : null}
+                    </CardContent>
                   </div>
-                </CardHeader>
-                <CardContent className="flex flex-col gap-3">
-                  <div className="flex items-center justify-between gap-2">
-                    <span className="text-muted-foreground">
-                      {packedValid
-                        ? interpolate(m.seeds.packed, {
-                            date: format(packedDate, "d MMMM yyyy", {
-                              locale: dateFnsLocale(locale),
-                            }),
-                          })
-                        : m.seeds.packedUnknown}
-                    </span>
-                    <Badge variant={aged ? "destructive" : "secondary"}>
-                      {aged && lot.packedAt
-                        ? formatYears(
-                            locale,
-                            Math.max(SEED_LOT_AGE_YEARS, seedLotAgeYears(lot.packedAt))
-                          )
-                        : m.seeds.fresh}
-                    </Badge>
-                  </div>
-                  {aged ? (
-                    <p className="text-sm text-muted-foreground">
-                      {interpolate(m.seeds.aged, {
-                        age: formatYears(locale, SEED_LOT_AGE_YEARS),
-                      })}
-                    </p>
-                  ) : null}
-                </CardContent>
+                </div>
               </Card>
             )
           })}
         </div>
       )}
 
-      {isPending || sorted.length > 0 ? (
-        <div className="pointer-events-none fixed inset-x-4 z-30 flex justify-end md:hidden bottom-[calc(6.5rem+env(safe-area-inset-bottom))]">
-          <div className="pointer-events-auto">
-            <AddSeedLot className="rounded-full px-4 shadow-lg" />
-          </div>
+      <div className="pointer-events-none fixed inset-x-4 z-30 flex justify-end bottom-[calc(6.5rem+env(safe-area-inset-bottom))] md:bottom-6 md:right-6 md:left-auto">
+        <div className="pointer-events-auto">
+          <AddSeedLot className="rounded-full px-4 shadow-lg" />
         </div>
-      ) : null}
+      </div>
 
       <SeedPlantSheet
         lot={selected}

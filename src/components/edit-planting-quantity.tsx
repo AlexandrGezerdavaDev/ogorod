@@ -5,10 +5,10 @@ import { PencilIcon } from "lucide-react"
 import { toast } from "sonner"
 
 import {
-  updateSeedLotQuantity,
-  type DisplaySeedLot,
+  updatePlantingQuantity,
+  type DisplayPlanting,
 } from "@/features/farm"
-import { formatSeedQuantityLabel } from "@/i18n/format"
+import { interpolate } from "@/i18n/format"
 import { useI18n } from "@/i18n/provider"
 import { Button } from "@/components/ui/button"
 import {
@@ -29,34 +29,38 @@ import {
 } from "@/components/ui/sheet"
 import { Spinner } from "@/components/ui/spinner"
 
-export function EditSeedQuantity({ lot }: { lot: DisplaySeedLot }) {
+export function EditPlantingQuantity({ plant }: { plant: DisplayPlanting }) {
   const { messages: m } = useI18n()
   const [open, setOpen] = React.useState(false)
   const [pending, setPending] = React.useState(false)
   const [error, setError] = React.useState<string>()
-  const [quantity, setQuantity] = React.useState(String(lot.quantity))
+  const [quantity, setQuantity] = React.useState(String(plant.quantity))
 
   async function onSubmit(event: React.FormEvent<HTMLFormElement>) {
     event.preventDefault()
     setError(undefined)
 
     const next = Number(quantity)
-    if (!Number.isFinite(next) || next < 0) {
-      setError(m.seeds.quantityNonNegative)
+    if (!Number.isInteger(next) || next < 1) {
+      setError(m.plants.quantityInvalid)
       return
     }
 
     setPending(true)
     try {
-      await updateSeedLotQuantity(lot.id, next)
-      toast.success(m.seeds.quantityUpdated)
+      await updatePlantingQuantity(plant.id, next)
+      toast.success(m.plants.quantityUpdated)
       setOpen(false)
     } catch {
-      setError(m.seeds.quantityUpdateFailed)
+      setError(m.plants.quantityUpdateFailed)
     } finally {
       setPending(false)
     }
   }
+
+  const title = plant.speciesName
+    ? `${plant.speciesName} · ${plant.cultivarName}`
+    : plant.cultivarName
 
   return (
     <Sheet
@@ -64,7 +68,7 @@ export function EditSeedQuantity({ lot }: { lot: DisplaySeedLot }) {
       onOpenChange={(next) => {
         setOpen(next)
         if (next) {
-          setQuantity(String(lot.quantity))
+          setQuantity(String(plant.quantity))
         } else {
           setError(undefined)
           setPending(false)
@@ -78,7 +82,7 @@ export function EditSeedQuantity({ lot }: { lot: DisplaySeedLot }) {
             variant="ghost"
             size="icon-sm"
             className="text-muted-foreground"
-            aria-label={m.seeds.editQuantity}
+            aria-label={m.plants.editQuantity}
           />
         }
       >
@@ -86,31 +90,31 @@ export function EditSeedQuantity({ lot }: { lot: DisplaySeedLot }) {
       </SheetTrigger>
       <SheetContent side="bottom" className="max-h-[90vh] overflow-y-auto">
         <SheetHeader>
-          <SheetTitle>{m.seeds.editQuantityTitle}</SheetTitle>
-          <SheetDescription>{m.seeds.editQuantityDesc}</SheetDescription>
+          <SheetTitle>{m.plants.editQuantityTitle}</SheetTitle>
+          <SheetDescription>{m.plants.editQuantityDesc}</SheetDescription>
         </SheetHeader>
         <form className="flex flex-col gap-4" onSubmit={(event) => void onSubmit(event)}>
           <FieldGroup className="px-4">
             <p className="text-sm text-muted-foreground">
-              {lot.speciesName
-                ? `${lot.speciesName} · ${lot.cultivarName}`
-                : lot.cultivarName}
+              {title}
               {" · "}
-              {formatSeedQuantityLabel(m, lot.quantity, lot.unit)}
+              {interpolate(m.plants.quantityCount, { count: plant.quantity })}
             </p>
-            <Field data-invalid={error === m.seeds.quantityNonNegative || undefined}>
-              <FieldLabel htmlFor={`seed-qty-${lot.id}`}>{m.seeds.quantity}</FieldLabel>
+            <Field data-invalid={error === m.plants.quantityInvalid || undefined}>
+              <FieldLabel htmlFor={`plant-qty-${plant.id}`}>
+                {m.plants.quantity}
+              </FieldLabel>
               <Input
-                id={`seed-qty-${lot.id}`}
+                id={`plant-qty-${plant.id}`}
                 name="quantity"
-                inputMode="decimal"
+                inputMode="numeric"
                 type="number"
-                min="0"
-                step="any"
+                min="1"
+                step="1"
                 required
                 value={quantity}
                 onChange={(event) => setQuantity(event.target.value)}
-                aria-invalid={error === m.seeds.quantityNonNegative || undefined}
+                aria-invalid={error === m.plants.quantityInvalid || undefined}
               />
             </Field>
             {error ? <FieldError>{error}</FieldError> : null}
@@ -118,7 +122,7 @@ export function EditSeedQuantity({ lot }: { lot: DisplaySeedLot }) {
           <SheetFooter>
             <Button type="submit" disabled={pending}>
               {pending ? <Spinner data-icon="inline-start" /> : null}
-              {m.seeds.save}
+              {m.plants.save}
             </Button>
           </SheetFooter>
         </form>

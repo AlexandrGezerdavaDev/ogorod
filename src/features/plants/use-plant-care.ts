@@ -3,6 +3,7 @@
 import { useCallback, useSyncExternalStore } from "react"
 
 import {
+  getCareDate,
   getPlantCare,
   getServerPlantCare,
   isCareDoneToday,
@@ -23,9 +24,15 @@ export function usePlantCare() {
     [state]
   )
 
-  const toggle = useCallback((plantId: string, kind: CareKind, done: boolean) => {
-    setCareDone(plantId, kind, done)
+  const lastDate = useCallback(
+    (plantId: string, kind: CareKind) => getCareDate(state, plantId, kind),
+    [state]
+  )
+
+  const toggle = useCallback((plantId: string, kind: CareKind) => {
+    const current = getPlantCare()
+    setCareDone(plantId, kind, !isCareDoneToday(current, plantId, kind))
   }, [])
 
-  return { state, isDone, toggle }
+  return { state, isDone, lastDate, toggle }
 }

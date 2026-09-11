@@ -208,6 +208,7 @@ async function insertFarmRow(organizationId: string, item: PushItem, now: Date) 
     return Boolean(row)
   }
   if (item.entity === "planting") {
+    const quantity = toNumber(payload.quantity)
     const [row] = await db
       .insert(planting)
       .values({
@@ -218,6 +219,7 @@ async function insertFarmRow(organizationId: string, item: PushItem, now: Date) 
         speciesId: payload.speciesId ? String(payload.speciesId) : null,
         nickname: payload.nickname ? String(payload.nickname) : null,
         plantedAt: payload.plantedAt ? new Date(String(payload.plantedAt)) : null,
+        quantity: quantity != null && quantity >= 1 ? Math.trunc(quantity) : 1,
         version: 1,
         updatedAt: now,
       })
@@ -311,6 +313,7 @@ async function updateFarmRow(
     return Boolean(row)
   }
   if (item.entity === "planting") {
+    const quantity = toNumber(payload.quantity)
     const [row] = await db
       .update(planting)
       .set({
@@ -319,6 +322,7 @@ async function updateFarmRow(
         speciesId: payload.speciesId ? String(payload.speciesId) : null,
         nickname: payload.nickname ? String(payload.nickname) : null,
         plantedAt: payload.plantedAt ? new Date(String(payload.plantedAt)) : null,
+        quantity: quantity != null && quantity >= 1 ? Math.trunc(quantity) : 1,
         version: nextVersion,
         updatedAt: now,
       })

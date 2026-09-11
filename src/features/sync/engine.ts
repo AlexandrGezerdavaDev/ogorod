@@ -271,6 +271,10 @@ async function putFarmRecord(
     await db.fields.put({ ...base, name: String(record.name ?? "") })
   }
   if (entity === "planting") {
+    const quantity =
+      typeof record.quantity === "number" && record.quantity >= 1
+        ? Math.trunc(record.quantity)
+        : 1
     await db.plantings.put({
       ...base,
       fieldId: String(record.fieldId ?? ""),
@@ -278,6 +282,7 @@ async function putFarmRecord(
       cultivarId: record.cultivarId ? String(record.cultivarId) : null,
       nickname: record.nickname ? String(record.nickname) : null,
       plantedAt: record.plantedAt ? String(record.plantedAt) : null,
+      quantity,
     })
   }
   if (entity === "observation") {

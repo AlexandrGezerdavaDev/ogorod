@@ -20,6 +20,7 @@ export type DisplayPlanting = {
   fieldName: string
   bed: string
   plantedAt: string | null
+  quantity: number
 }
 
 export function usePlantings(options?: { fieldId?: string | null }) {
@@ -54,6 +55,10 @@ export function usePlantings(options?: { fieldId?: string | null }) {
         const speciesRow = species.find((item) => item.id === speciesId)
         const field = (fields ?? []).find((item) => item.id === planting.fieldId)
         const storedName = planting.nickname?.trim()
+        const quantity =
+          typeof planting.quantity === "number" && planting.quantity >= 1
+            ? Math.trunc(planting.quantity)
+            : 1
         return {
           id: planting.id,
           speciesId,
@@ -68,6 +73,7 @@ export function usePlantings(options?: { fieldId?: string | null }) {
           fieldName: field?.name ?? "",
           bed: field ? localizeBed(m, field.name) : "",
           plantedAt: planting.plantedAt ?? null,
+          quantity,
         }
       })
 

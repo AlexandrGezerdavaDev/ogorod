@@ -9,7 +9,6 @@ import { createSeedLot, type SeedUnit } from "@/features/farm"
 import { useKbSpecies } from "@/features/kb/use-kb-species"
 import { catalogCommonName } from "@/i18n/format"
 import { useI18n } from "@/i18n/provider"
-import { useIsMobile } from "@/hooks/use-mobile"
 import { cn } from "@/lib/utils"
 import { Button } from "@/components/ui/button"
 import {
@@ -44,7 +43,6 @@ function todayIsoDate() {
 
 export function AddSeedLot({ className }: { className?: string }) {
   const { locale, messages: m } = useI18n()
-  const isMobile = useIsMobile()
   const { data: session } = authClient.useSession()
   const { data: kb } = useKbSpecies()
   const [open, setOpen] = React.useState(false)
@@ -119,8 +117,8 @@ export function AddSeedLot({ className }: { className?: string }) {
       <SheetTrigger
         render={
           <Button
-            size={isMobile ? "lg" : "default"}
-            className={cn(isMobile && "min-h-11 text-base", className)}
+            size="lg"
+            className={cn("min-h-12 gap-2 px-5 text-base [&_svg:not([class*='size-'])]:size-5", className)}
           />
         }
       >
