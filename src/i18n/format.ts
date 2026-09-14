@@ -1,4 +1,4 @@
-import { formatDistanceToNow } from "date-fns"
+import { differenceInDays, differenceInMonths, differenceInYears, formatDistanceToNow } from "date-fns"
 import { enUS, ru, uk } from "date-fns/locale"
 import { enUS as dayPickerEn, ru as dayPickerRu, uk as dayPickerUk } from "react-day-picker/locale"
 
@@ -65,6 +65,41 @@ export function formatYears(locale: Locale, years: number) {
     return `${years} ${slavicPlural(years, "год", "года", "лет")}`
   }
   return `${years} ${slavicPlural(years, "рік", "роки", "років")}`
+}
+
+export function formatDays(locale: Locale, days: number) {
+  if (locale === "en") {
+    return days === 1 ? "1 day" : `${days} days`
+  }
+  if (locale === "ru") {
+    return `${days} ${slavicPlural(days, "день", "дня", "дней")}`
+  }
+  return `${days} ${slavicPlural(days, "день", "дні", "днів")}`
+}
+
+export function formatMonths(locale: Locale, months: number) {
+  if (locale === "en") {
+    return months === 1 ? "1 month" : `${months} months`
+  }
+  if (locale === "ru") {
+    return `${months} ${slavicPlural(months, "месяц", "месяца", "месяцев")}`
+  }
+  return `${months} ${slavicPlural(months, "місяць", "місяці", "місяців")}`
+}
+
+export function formatPlantAge(locale: Locale, planted: Date, now = new Date()) {
+  const days = Math.max(0, differenceInDays(now, planted))
+  if (days < 1) {
+    return null
+  }
+  if (days < 30) {
+    return formatDays(locale, days)
+  }
+  const months = differenceInMonths(now, planted)
+  if (months < 12) {
+    return formatMonths(locale, Math.max(1, months))
+  }
+  return formatYears(locale, Math.max(1, differenceInYears(now, planted)))
 }
 
 export function seedUnitLabel(m: Messages, unit: string) {

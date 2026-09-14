@@ -45,7 +45,7 @@ export function PlantCareActions({
   const { isDone, lastDate, toggle } = usePlantCare()
 
   return (
-    <div className={cn("flex gap-2", compact ? "shrink-0" : "w-full")}>
+    <div className={cn("flex", compact ? "shrink-0 gap-1" : "w-full gap-2 md:w-auto md:gap-1")}>
       <CareButton
         kind="water"
         compact={compact}
@@ -134,8 +134,8 @@ function CareButton({
   const Icon = kind === "water" ? DropletIcon : SproutIcon
   const active =
     kind === "water"
-      ? "border-sky-500/40 bg-sky-500/15 text-sky-700 dark:text-sky-300"
-      : "border-amber-500/40 bg-amber-500/15 text-amber-800 dark:text-amber-300"
+      ? "text-sky-700 dark:text-sky-300"
+      : "text-amber-800 dark:text-amber-300"
 
   return (
     <button
@@ -148,26 +148,41 @@ function CareButton({
         onClick()
       }}
       className={cn(
-        "flex flex-col items-center gap-1 rounded-lg text-center outline-none transition-colors",
+        "inline-flex items-center outline-none transition-colors",
         "hover:bg-muted/80 focus-visible:ring-3 focus-visible:ring-ring/50",
-        compact ? "min-w-9 px-1 py-1" : "min-w-0 flex-1 px-2 py-1.5"
+        compact
+          ? "flex-col gap-1 rounded-lg px-1 py-1"
+          : "min-w-0 flex-1 flex-col gap-1 rounded-xl px-2 py-2 md:flex-none md:flex-row md:gap-1.5 md:rounded-full md:px-2 md:py-1"
       )}
     >
+      {compact ? (
+        <span
+          className={cn(
+            "flex size-8 items-center justify-center rounded-full border transition-colors",
+            pressed
+              ? kind === "water"
+                ? "border-sky-500/30 bg-sky-500/10 text-sky-700 dark:text-sky-300"
+                : "border-amber-500/30 bg-amber-500/10 text-amber-800 dark:text-amber-300"
+              : "border-border text-muted-foreground"
+          )}
+        >
+          <Icon className={cn("size-4", pressed && "fill-current")} />
+        </span>
+      ) : (
+        <Icon
+          className={cn(
+            "size-6 md:size-3.5",
+            pressed ? cn("fill-current", active) : "text-muted-foreground"
+          )}
+        />
+      )}
+      {compact ? null : <span className="sr-only">{label}</span>}
       <span
         className={cn(
-          "flex items-center justify-center rounded-full border transition-colors",
-          compact ? "size-9" : "size-12",
-          pressed ? active : "border-border text-muted-foreground"
+          "leading-none text-muted-foreground",
+          compact ? "text-[0.7rem]" : "text-xs"
         )}
       >
-        <Icon
-          className={cn(compact ? "size-5" : "size-6", pressed && "fill-current")}
-        />
-      </span>
-      {compact ? null : (
-        <span className="text-xs font-medium leading-none">{label}</span>
-      )}
-      <span className="text-[0.7rem] leading-none text-muted-foreground">
         {dateLabel}
       </span>
     </button>

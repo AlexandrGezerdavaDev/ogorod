@@ -16,8 +16,9 @@ export function PlantCardImage({ src, alt }: { src: string; alt: string }) {
     <div
       className={cn(
         "relative shrink-0 overflow-hidden bg-muted",
-        "aspect-[16/10] h-40 w-full max-h-44",
-        "md:aspect-auto md:h-auto md:max-h-none md:w-36 md:min-h-[10.5rem] lg:w-40"
+        "aspect-[4/3] w-full",
+        "md:aspect-square md:m-3 md:size-24 md:w-24 md:self-start md:rounded-2xl",
+        "lg:size-28 lg:w-28"
       )}
     >
       {src && !failed ? (
@@ -26,12 +27,12 @@ export function PlantCardImage({ src, alt }: { src: string; alt: string }) {
         <img
           src={src}
           alt={alt}
-          className="size-full object-cover"
+          className="size-full object-cover transition-transform duration-500 group-hover/card:scale-[1.04]"
           onError={() => setFailed(true)}
         />
       ) : (
         <div className="flex size-full items-center justify-center text-muted-foreground">
-          <LeafIcon className="size-10" />
+          <LeafIcon className="size-8 md:size-7" />
         </div>
       )}
     </div>

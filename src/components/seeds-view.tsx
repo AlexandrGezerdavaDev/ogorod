@@ -121,7 +121,7 @@ export function SeedsView() {
                   }
                 }}
               >
-                <div className="flex flex-col md:flex-row md:items-stretch">
+                <div className="flex flex-col md:flex-row md:items-start">
                   <PlantCardImage
                     src={getPlantProfile(lot.speciesId).imageUrl}
                     alt={lot.speciesName || lot.cultivarName}

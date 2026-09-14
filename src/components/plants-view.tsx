@@ -4,14 +4,17 @@ import { useMemo, useState } from "react"
 import { format, parseISO } from "date-fns"
 import {
   BookOpenIcon,
+  CalendarDaysIcon,
+  HashIcon,
   LeafIcon,
+  LeafyGreenIcon,
+  MapPinIcon,
   SearchIcon,
   Trash2Icon,
   XIcon,
 } from "lucide-react"
 import { toast } from "sonner"
 
-import { type PlantStatus } from "@/lib/garden-data"
 import {
   deletePlanting,
   usePlantings,
@@ -44,14 +47,10 @@ import {
 } from "@/features/kb/catalog"
 import { getPlantProfile } from "@/features/kb/plant-profiles"
 import { useKbSpecies } from "@/features/kb/use-kb-species"
-import { Badge } from "@/components/ui/badge"
 import { Button } from "@/components/ui/button"
 import {
   Card,
-  CardContent,
   CardDescription,
-  CardFooter,
-  CardHeader,
   CardTitle,
 } from "@/components/ui/card"
 import { Checkbox } from "@/components/ui/checkbox"
@@ -82,20 +81,12 @@ import {
   catalogCommonName,
   catalogCultivarName,
   dateFnsLocale,
+  formatPlantAge,
   interpolate,
 } from "@/i18n/format"
 import { useI18n } from "@/i18n/provider"
 import { usePreferences } from "@/features/settings/provider"
 import { useSearchParams } from "next/navigation"
-
-const badgeVariant: Record<
-  PlantStatus,
-  "default" | "secondary" | "destructive"
-> = {
-  healthy: "secondary",
-  water: "default",
-  attention: "destructive",
-}
 
 export function PlantsView() {
   const { messages: m } = useI18n()
@@ -146,10 +137,9 @@ export function PlantsView() {
   )
 }
 
-function plantedCopy(
+function plantedDate(
   plantedAt: string | null,
   locale: Parameters<typeof dateFnsLocale>[0],
-  planted: string,
   unknown: string
 ) {
   if (!plantedAt) {
@@ -159,9 +149,36 @@ function plantedCopy(
   if (Number.isNaN(date.getTime())) {
     return unknown
   }
-  return interpolate(planted, {
-    date: format(date, "d MMMM yyyy", { locale: dateFnsLocale(locale) }),
-  })
+  return format(date, "d MMMM yyyy", { locale: dateFnsLocale(locale) })
+}
+
+function plantedCopy(
+  plantedAt: string | null,
+  locale: Parameters<typeof dateFnsLocale>[0],
+  planted: string,
+  unknown: string
+) {
+  const date = plantedDate(plantedAt, locale, unknown)
+  if (date === unknown) {
+    return unknown
+  }
+  return interpolate(planted, { date })
+}
+
+function plantAgeCopy(
+  plantedAt: string | null,
+  locale: Parameters<typeof dateFnsLocale>[0],
+  today: string,
+  unknown: string
+) {
+  if (!plantedAt) {
+    return unknown
+  }
+  const date = parseISO(plantedAt)
+  if (Number.isNaN(date.getTime())) {
+    return unknown
+  }
+  return formatPlantAge(locale, date) ?? today
 }
 
 function MyPlants({
@@ -177,9 +194,9 @@ function MyPlants({
 
   if (isPending) {
     return (
-      <div className="grid gap-4 sm:grid-cols-2 xl:grid-cols-3">
-        <Skeleton className="h-56 rounded-xl" />
-        <Skeleton className="h-56 rounded-xl" />
+      <div className="grid gap-3 sm:grid-cols-2 xl:grid-cols-3">
+        <Skeleton className="h-44 rounded-2xl md:h-32" />
+        <Skeleton className="h-44 rounded-2xl md:h-32" />
       </div>
     )
   }
@@ -206,28 +223,24 @@ function MyPlants({
 
   return (
     <>
-      <div className="grid gap-4 sm:grid-cols-2 xl:grid-cols-3">
+      <div className="grid gap-3 sm:grid-cols-2 xl:grid-cols-3">
         {plantings.map((plant) => {
           const title = plant.speciesName
             ? `${plant.speciesName} · ${plant.cultivarName}`
             : plant.cultivarName
-          const planted = plantedCopy(
-            plant.plantedAt,
-            locale,
-            m.plants.planted,
-            m.plants.plantedUnknown
-          )
-          const status: PlantStatus = "healthy"
           return (
-            <Card key={plant.id} className="pt-0">
+            <Card
+              key={plant.id}
+              className="gap-0 py-0 ring-foreground/8 transition-colors hover:bg-muted/25 hover:ring-foreground/12"
+            >
               <div
                 role="button"
                 tabIndex={0}
                 aria-label={title}
                 className={cn(
-                  "flex cursor-pointer flex-col gap-(--card-spacing) rounded-t-xl text-left",
-                  "transition-colors hover:bg-muted/40",
-                  "focus-visible:ring-3 focus-visible:ring-ring/50 focus-visible:outline-none"
+                  "flex cursor-pointer flex-col text-left",
+                  "focus-visible:ring-3 focus-visible:ring-ring/50 focus-visible:outline-none",
+                  "md:flex-row md:items-start"
                 )}
                 onClick={() => setSelected(plant)}
                 onKeyDown={(event) => {
@@ -241,14 +254,20 @@ function MyPlants({
                   src={getPlantProfile(plant.speciesId).imageUrl}
                   alt={plant.speciesName || plant.cultivarName}
                 />
-                <CardHeader>
+                <div className="flex min-w-0 flex-1 flex-col gap-2 p-4 md:py-3 md:pr-4 md:pl-0">
                   <div className="flex items-start justify-between gap-2">
                     <div className="min-w-0 flex-1">
-                      <CardTitle>{plant.speciesName || plant.cultivarName}</CardTitle>
-                      <CardDescription>{plant.cultivarName}</CardDescription>
+                      <CardTitle className="truncate">
+                        {plant.speciesName || plant.cultivarName}
+                      </CardTitle>
+                      {plant.speciesName ? (
+                        <CardDescription className="truncate">
+                          {plant.cultivarName}
+                        </CardDescription>
+                      ) : null}
                     </div>
                     <div
-                      className="flex shrink-0 items-center gap-0.5"
+                      className="-mr-1 flex shrink-0 items-center"
                       onClick={(event) => event.stopPropagation()}
                       onKeyDown={(event) => event.stopPropagation()}
                     >
@@ -256,25 +275,45 @@ function MyPlants({
                       <DeletePlantingButton plant={plant} />
                     </div>
                   </div>
-                </CardHeader>
-                <CardContent className="flex flex-col gap-3">
-                  <div className="flex items-center justify-between gap-2">
-                    <span className="text-muted-foreground">{plant.bed}</span>
-                    <Badge variant={badgeVariant[status]}>
-                      {m.status[status]}
-                    </Badge>
+                  <div className="flex flex-col gap-1 text-sm text-muted-foreground">
+                    <span className="inline-flex items-center gap-1.5">
+                      <MapPinIcon className="size-3.5 shrink-0" aria-hidden />
+                      {plant.bed}
+                    </span>
+                    <span className="inline-flex items-center gap-1.5">
+                      <HashIcon className="size-3.5 shrink-0" aria-hidden />
+                      {interpolate(m.plants.quantityCount, {
+                        count: plant.quantity,
+                      })}
+                    </span>
+                    <span className="inline-flex items-center gap-1.5">
+                      <LeafyGreenIcon className="size-3.5 shrink-0" aria-hidden />
+                      {m.plants.age}
+                      {" · "}
+                      {plantAgeCopy(
+                        plant.plantedAt,
+                        locale,
+                        m.plants.ageToday,
+                        m.plants.ageUnknown
+                      )}
+                    </span>
+                    <span className="inline-flex items-center gap-1.5">
+                      <CalendarDaysIcon className="size-3.5 shrink-0" aria-hidden />
+                      {plantedDate(
+                        plant.plantedAt,
+                        locale,
+                        m.plants.plantedUnknown
+                      )}
+                    </span>
                   </div>
-                  <p className="text-sm text-muted-foreground">
-                    {interpolate(m.plants.quantityCount, {
-                      count: plant.quantity,
-                    })}
-                  </p>
-                  <p className="text-xs text-muted-foreground">{planted}</p>
-                </CardContent>
+                  <div
+                    onClick={(event) => event.stopPropagation()}
+                    onKeyDown={(event) => event.stopPropagation()}
+                  >
+                    <PlantCareActions plantId={plant.id} name={title} />
+                  </div>
+                </div>
               </div>
-              <CardFooter className="w-full">
-                <PlantCareActions plantId={plant.id} name={title} />
-              </CardFooter>
             </Card>
           )
         })}
@@ -522,7 +561,7 @@ function CatalogPlants() {
           </EmptyHeader>
         </Empty>
       ) : (
-        <div className="grid gap-4 sm:grid-cols-2 xl:grid-cols-3">
+        <div className="grid gap-3 sm:grid-cols-2 xl:grid-cols-3">
           {filtered.map((item) => {
             const title = prefs.appearance.showLatin
               ? item.scientificName
@@ -530,6 +569,12 @@ function CatalogPlants() {
             const subtitle = prefs.appearance.showLatin
               ? catalogCommonName(locale, item)
               : item.scientificName
+            const cultivars =
+              item.cultivars.length === 0
+                ? m.plants.catalogNoCultivars
+                : item.cultivars
+                    .map((cultivar) => catalogCultivarName(locale, cultivar.name))
+                    .join(" · ")
             return (
               <Card
                 key={item.id}
@@ -537,8 +582,10 @@ function CatalogPlants() {
                 tabIndex={0}
                 aria-label={title}
                 className={cn(
-                  "cursor-pointer pt-0 transition-colors hover:bg-muted/40",
-                  "focus-visible:ring-3 focus-visible:ring-ring/50 focus-visible:outline-none"
+                  "cursor-pointer gap-0 py-0 ring-foreground/8 transition-colors",
+                  "hover:bg-muted/25 hover:ring-foreground/12",
+                  "focus-visible:ring-3 focus-visible:ring-ring/50 focus-visible:outline-none",
+                  "md:flex-row md:items-center"
                 )}
                 onClick={() => setSelected(item)}
                 onKeyDown={(event) => {
@@ -552,30 +599,25 @@ function CatalogPlants() {
                   src={getPlantProfile(item.id).imageUrl}
                   alt={title}
                 />
-                <CardHeader>
-                  <div className="flex items-start justify-between gap-2">
-                    <CardTitle>{title}</CardTitle>
-                    <Badge variant="outline">
+                <div className="flex min-w-0 flex-1 flex-col gap-1.5 p-4 md:py-3 md:pr-4 md:pl-0">
+                  <div className="flex items-start justify-between gap-3">
+                    <CardTitle className="truncate">{title}</CardTitle>
+                    <span className="shrink-0 text-xs text-muted-foreground">
                       {m.plants.catalogCategory[item.category]}
-                    </Badge>
+                    </span>
                   </div>
-                  <CardDescription className={prefs.appearance.showLatin ? undefined : "italic"}>
+                  <CardDescription
+                    className={cn(
+                      "truncate",
+                      prefs.appearance.showLatin ? undefined : "italic"
+                    )}
+                  >
                     {subtitle}
                   </CardDescription>
-                </CardHeader>
-                <CardContent className="flex flex-wrap gap-2">
-                  {item.cultivars.length === 0 ? (
-                    <p className="text-sm text-muted-foreground">
-                      {m.plants.catalogNoCultivars}
-                    </p>
-                  ) : (
-                    item.cultivars.map((cultivar) => (
-                      <Badge key={cultivar.id} variant="secondary">
-                        {catalogCultivarName(locale, cultivar.name)}
-                      </Badge>
-                    ))
-                  )}
-                </CardContent>
+                  <p className="line-clamp-2 text-sm text-muted-foreground">
+                    {cultivars}
+                  </p>
+                </div>
               </Card>
             )
           })}
