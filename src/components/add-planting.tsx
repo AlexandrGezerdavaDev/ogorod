@@ -1,7 +1,7 @@
 "use client"
 
 import * as React from "react"
-import { PlusIcon } from "lucide-react"
+import { ImagePlusIcon, PlusIcon, XIcon } from "lucide-react"
 import { toast } from "sonner"
 
 import { authClient } from "@/features/auth/client"
@@ -9,6 +9,7 @@ import { createPlanting, useSpaces } from "@/features/farm"
 import { useKbSpecies } from "@/features/kb/use-kb-species"
 import { catalogCommonName } from "@/i18n/format"
 import { useI18n } from "@/i18n/provider"
+import { compressImageFile } from "@/lib/compress-image"
 import { cn } from "@/lib/utils"
 import { Button } from "@/components/ui/button"
 import {
@@ -55,11 +56,43 @@ export function AddPlanting({
   const [spaceOpen, setSpaceOpen] = React.useState(false)
   const [pending, setPending] = React.useState(false)
   const [error, setError] = React.useState<string>()
+  const [photoUrl, setPhotoUrl] = React.useState<string | null>(null)
+  const [photoPending, setPhotoPending] = React.useState(false)
+  const fileInputRef = React.useRef<HTMLInputElement>(null)
 
   const species = kb?.species ?? []
   const cultivars = kb?.cultivars ?? []
   const { spaces } = useSpaces()
   const organizationId = session?.session.activeOrganizationId
+
+  function resetFormState() {
+    setError(undefined)
+    setPending(false)
+    setPhotoUrl(null)
+    setPhotoPending(false)
+    if (fileInputRef.current) {
+      fileInputRef.current.value = ""
+    }
+  }
+
+  async function onPhotoChange(event: React.ChangeEvent<HTMLInputElement>) {
+    const file = event.target.files?.[0]
+    if (!file) {
+      return
+    }
+
+    setPhotoPending(true)
+    setError(undefined)
+    try {
+      const compressed = await compressImageFile(file)
+      setPhotoUrl(compressed)
+    } catch {
+      setError(m.plants.photoFailed)
+      setPhotoUrl(null)
+    } finally {
+      setPhotoPending(false)
+    }
+  }
 
   async function onSubmit(event: React.FormEvent<HTMLFormElement>) {
     event.preventDefault()
@@ -110,10 +143,12 @@ export function AddPlanting({
         cultivarId: cultivar?.id ?? null,
         plantedAt: plantedAt || null,
         quantity,
+        photoUrl,
       })
       toast.success(m.plants.saved)
       setOpen(false)
       event.currentTarget.reset()
+      resetFormState()
     } catch {
       setError(m.plants.saveFailed)
     } finally {
@@ -128,8 +163,7 @@ export function AddPlanting({
       onOpenChange={(next) => {
         setOpen(next)
         if (!next) {
-          setError(undefined)
-          setPending(false)
+          resetFormState()
         }
       }}
     >
@@ -155,6 +189,63 @@ export function AddPlanting({
           onSubmit={(event) => void onSubmit(event)}
         >
           <FieldGroup className="px-4">
+            <Field>
+              <FieldLabel>{m.plants.photo}</FieldLabel>
+              <input
+                ref={fileInputRef}
+                type="file"
+                accept="image/*"
+                capture="environment"
+                className="sr-only"
+                onChange={(event) => void onPhotoChange(event)}
+              />
+              {photoUrl ? (
+                <div className="relative overflow-hidden rounded-xl bg-muted">
+                  {/* Preview of the just-picked plant photo */}
+                  {/* eslint-disable-next-line @next/next/no-img-element */}
+                  <img
+                    src={photoUrl}
+                    alt={m.plants.photoPreviewAlt}
+                    className="aspect-[4/3] w-full object-cover"
+                  />
+                  <Button
+                    type="button"
+                    size="icon-sm"
+                    variant="secondary"
+                    className="absolute top-2 right-2"
+                    onClick={() => {
+                      setPhotoUrl(null)
+                      if (fileInputRef.current) {
+                        fileInputRef.current.value = ""
+                      }
+                    }}
+                    aria-label={m.plants.photoRemove}
+                  >
+                    <XIcon />
+                  </Button>
+                </div>
+              ) : (
+                <Button
+                  type="button"
+                  variant="outline"
+                  className="h-auto min-h-24 w-full flex-col gap-2 py-6"
+                  disabled={photoPending}
+                  onClick={() => fileInputRef.current?.click()}
+                >
+                  {photoPending ? (
+                    <Spinner />
+                  ) : (
+                    <ImagePlusIcon className="size-6 text-muted-foreground" />
+                  )}
+                  <span className="text-sm font-medium">
+                    {photoPending ? m.plants.photoProcessing : m.plants.photoAdd}
+                  </span>
+                  <span className="text-xs font-normal text-muted-foreground">
+                    {m.plants.photoHint}
+                  </span>
+                </Button>
+              )}
+            </Field>
             <Field data-invalid={error === m.plants.speciesRequired || undefined}>
               <FieldLabel htmlFor="plant-species">{m.plants.species}</FieldLabel>
               {species.length === 0 ? (
@@ -249,7 +340,9 @@ export function AddPlanting({
           <SheetFooter>
             <Button
               type="submit"
-              disabled={pending || species.length === 0 || spaces.length === 0}
+              disabled={
+                pending || photoPending || species.length === 0 || spaces.length === 0
+              }
             >
               {pending ? <Spinner data-icon="inline-start" /> : null}
               {m.plants.save}

@@ -50,6 +50,7 @@ export const planting = pgTable(
     nickname: text("nickname"),
     plantedAt: timestamp("planted_at", { withTimezone: true }),
     quantity: integer("quantity").notNull().default(1),
+    photoUrl: text("photo_url"),
     ...syncColumns,
   },
   (table) => [
@@ -122,6 +123,7 @@ export const seedLot = pgTable(
     quantity: doublePrecision("quantity").notNull(),
     unit: text("unit").notNull().default("шт"),
     packedAt: timestamp("packed_at", { withTimezone: true }),
+    photoUrl: text("photo_url"),
     ...syncColumns,
   },
   (table) => [

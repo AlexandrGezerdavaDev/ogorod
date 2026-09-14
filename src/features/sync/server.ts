@@ -220,6 +220,7 @@ async function insertFarmRow(organizationId: string, item: PushItem, now: Date) 
         nickname: payload.nickname ? String(payload.nickname) : null,
         plantedAt: payload.plantedAt ? new Date(String(payload.plantedAt)) : null,
         quantity: quantity != null && quantity >= 1 ? Math.trunc(quantity) : 1,
+        photoUrl: payload.photoUrl ? String(payload.photoUrl) : null,
         version: 1,
         updatedAt: now,
       })
@@ -269,6 +270,7 @@ async function insertFarmRow(organizationId: string, item: PushItem, now: Date) 
     const cultivarId = payload.cultivarId ? String(payload.cultivarId) : null
     const speciesId = payload.speciesId ? String(payload.speciesId) : null
     const name = String(payload.name ?? "").trim() || "—"
+    const photoUrl = payload.photoUrl ? String(payload.photoUrl) : null
     const [row] = await db
       .insert(seedLot)
       .values({
@@ -280,6 +282,7 @@ async function insertFarmRow(organizationId: string, item: PushItem, now: Date) 
         quantity: quantity ?? 0,
         unit: payload.unit ? String(payload.unit) : "шт",
         packedAt: payload.packedAt ? new Date(String(payload.packedAt)) : null,
+        photoUrl,
         version: 1,
         updatedAt: now,
       })
@@ -323,6 +326,7 @@ async function updateFarmRow(
         nickname: payload.nickname ? String(payload.nickname) : null,
         plantedAt: payload.plantedAt ? new Date(String(payload.plantedAt)) : null,
         quantity: quantity != null && quantity >= 1 ? Math.trunc(quantity) : 1,
+        photoUrl: payload.photoUrl ? String(payload.photoUrl) : null,
         version: nextVersion,
         updatedAt: now,
       })
@@ -382,6 +386,7 @@ async function updateFarmRow(
     const cultivarId = payload.cultivarId ? String(payload.cultivarId) : null
     const speciesId = payload.speciesId ? String(payload.speciesId) : null
     const name = String(payload.name ?? "").trim() || "—"
+    const photoUrl = payload.photoUrl ? String(payload.photoUrl) : null
     const [row] = await db
       .update(seedLot)
       .set({
@@ -391,6 +396,7 @@ async function updateFarmRow(
         quantity: quantity ?? 0,
         unit: payload.unit ? String(payload.unit) : "шт",
         packedAt: payload.packedAt ? new Date(String(payload.packedAt)) : null,
+        photoUrl,
         version: nextVersion,
         updatedAt: now,
       })

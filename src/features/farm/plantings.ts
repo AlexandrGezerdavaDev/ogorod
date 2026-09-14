@@ -11,6 +11,7 @@ export type CreatePlantingInput = {
   cultivarId?: string | null
   plantedAt?: string | null
   quantity?: number
+  photoUrl?: string | null
 }
 
 function normalizeQuantity(value: number | undefined) {
@@ -30,6 +31,7 @@ function plantingPayload(planting: {
   nickname?: string | null
   plantedAt?: string | null
   quantity: number
+  photoUrl?: string | null
 }) {
   return {
     fieldId: planting.fieldId,
@@ -38,6 +40,7 @@ function plantingPayload(planting: {
     nickname: planting.nickname ?? null,
     plantedAt: planting.plantedAt ?? null,
     quantity: planting.quantity,
+    photoUrl: planting.photoUrl ?? null,
   }
 }
 
@@ -75,6 +78,7 @@ export async function createPlanting(input: CreatePlantingInput) {
   const id = crypto.randomUUID()
   const plantedAt = input.plantedAt?.trim() ? input.plantedAt : null
   const cultivarId = input.cultivarId?.trim() || null
+  const photoUrl = input.photoUrl?.trim() || null
   const planting: LocalPlanting = {
     id,
     organizationId: input.organizationId,
@@ -84,6 +88,7 @@ export async function createPlanting(input: CreatePlantingInput) {
     nickname: name,
     plantedAt,
     quantity,
+    photoUrl,
     version: 1,
     syncStatus: "pending",
     createdAt: now,
@@ -186,6 +191,7 @@ export async function updatePlantingQuantity(id: string, quantity: number) {
     nickname: planting.nickname,
     plantedAt: planting.plantedAt,
     quantity: nextQuantity,
+    photoUrl: planting.photoUrl,
   })
 
   await db.transaction("rw", [db.plantings, db.outbox], async () => {

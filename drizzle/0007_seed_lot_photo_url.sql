@@ -1,0 +1,1 @@
+ALTER TABLE "seed_lot" ADD COLUMN "photo_url" text;

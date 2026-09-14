@@ -21,6 +21,7 @@ export type DisplayPlanting = {
   bed: string
   plantedAt: string | null
   quantity: number
+  photoUrl: string | null
 }
 
 export function usePlantings(options?: { fieldId?: string | null }) {
@@ -76,6 +77,7 @@ export function usePlantings(options?: { fieldId?: string | null }) {
           bed: field ? localizeBed(m, field.name) : "",
           plantedAt: planting.plantedAt ?? null,
           quantity,
+          photoUrl: planting.photoUrl ?? null,
         }
       })
 

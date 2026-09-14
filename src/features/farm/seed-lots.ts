@@ -13,6 +13,7 @@ export type CreateSeedLotInput = {
   quantity: number
   unit: SeedUnit
   packedAt?: string | null
+  photoUrl?: string | null
 }
 
 export function normalizeSeedUnit(unit: string): SeedUnit {
@@ -41,6 +42,7 @@ export async function createSeedLot(input: CreateSeedLotInput) {
   const id = crypto.randomUUID()
   const packedAt = input.packedAt?.trim() ? input.packedAt : null
   const cultivarId = input.cultivarId?.trim() || null
+  const photoUrl = input.photoUrl?.trim() || null
   const lot: LocalSeedLot = {
     id,
     organizationId: input.organizationId,
@@ -50,6 +52,7 @@ export async function createSeedLot(input: CreateSeedLotInput) {
     quantity: input.quantity,
     unit: input.unit,
     packedAt,
+    photoUrl,
     version: 1,
     syncStatus: "pending",
     createdAt: now,
@@ -63,6 +66,7 @@ export async function createSeedLot(input: CreateSeedLotInput) {
     quantity: input.quantity,
     unit: input.unit,
     packedAt,
+    photoUrl,
   }
 
   await db.transaction("rw", [db.seedLots, db.outbox], async () => {
@@ -162,6 +166,7 @@ export async function updateSeedLotQuantity(id: string, quantity: number) {
     quantity,
     unit: lot.unit,
     packedAt: lot.packedAt ?? null,
+    photoUrl: lot.photoUrl ?? null,
   }
 
   await db.transaction("rw", [db.seedLots, db.outbox], async () => {

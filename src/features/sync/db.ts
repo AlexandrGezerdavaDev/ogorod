@@ -43,6 +43,7 @@ export type LocalPlanting = {
   nickname?: string | null
   plantedAt?: string | null
   quantity: number
+  photoUrl?: string | null
   version: number
   syncStatus: SyncStatus
   createdAt: string
@@ -90,6 +91,7 @@ export type LocalSeedLot = {
   quantity: number
   unit: string
   packedAt?: string | null
+  photoUrl?: string | null
   version: number
   syncStatus: SyncStatus
   createdAt: string

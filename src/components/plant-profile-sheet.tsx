@@ -44,23 +44,26 @@ export function PlantProfileSheet({
   speciesId,
   title,
   description,
+  imageUrl,
   open,
   onOpenChange,
 }: {
   speciesId?: string | null
   title: string
   description?: React.ReactNode
+  imageUrl?: string | null
   open: boolean
   onOpenChange: (open: boolean) => void
 }) {
   const { messages: m } = useI18n()
   const isMobile = useIsMobile()
   const profile = getPlantProfile(speciesId)
+  const resolvedImage = imageUrl?.trim() || profile.imageUrl
   const [imageFailed, setImageFailed] = React.useState(false)
 
   React.useEffect(() => {
     setImageFailed(false)
-  }, [speciesId, profile.imageUrl])
+  }, [speciesId, resolvedImage])
 
   return (
     <Sheet open={open} onOpenChange={onOpenChange}>
@@ -70,7 +73,7 @@ export function PlantProfileSheet({
       >
         <div className="relative aspect-[4/3] w-full bg-muted md:hidden">
           <ProfileImage
-            src={profile.imageUrl}
+            src={resolvedImage}
             alt={title}
             failed={imageFailed}
             onError={() => setImageFailed(true)}
@@ -80,7 +83,7 @@ export function PlantProfileSheet({
         <div className="flex items-center gap-4 px-5 pt-5 md:pr-14">
           <div className="relative hidden size-20 shrink-0 overflow-hidden rounded-2xl bg-muted md:block lg:size-24">
             <ProfileImage
-              src={profile.imageUrl}
+              src={resolvedImage}
               alt={title}
               failed={imageFailed}
               onError={() => setImageFailed(true)}

@@ -50,6 +50,20 @@
       "when": 1789133435217,
       "tag": "0006_zippy_chamber",
       "breakpoints": true
+    },
+    {
+      "idx": 7,
+      "version": "7",
+      "when": 1789394878347,
+      "tag": "0007_seed_lot_photo_url",
+      "breakpoints": true
+    },
+    {
+      "idx": 8,
+      "version": "7",
+      "when": 1789395285999,
+      "tag": "0008_planting_photo_url",
+      "breakpoints": true
     }
   ]
 }

@@ -283,6 +283,7 @@ async function putFarmRecord(
       nickname: record.nickname ? String(record.nickname) : null,
       plantedAt: record.plantedAt ? String(record.plantedAt) : null,
       quantity,
+      photoUrl: record.photoUrl ? String(record.photoUrl) : null,
     })
   }
   if (entity === "observation") {
@@ -315,6 +316,7 @@ async function putFarmRecord(
       quantity: typeof record.quantity === "number" ? record.quantity : 0,
       unit: record.unit ? String(record.unit) : "шт",
       packedAt: record.packedAt ? String(record.packedAt) : null,
+      photoUrl: record.photoUrl ? String(record.photoUrl) : null,
     })
   }
 }

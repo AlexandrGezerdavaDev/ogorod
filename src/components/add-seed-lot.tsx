@@ -1,7 +1,7 @@
 "use client"
 
 import * as React from "react"
-import { PlusIcon } from "lucide-react"
+import { ImagePlusIcon, PlusIcon, XIcon } from "lucide-react"
 import { toast } from "sonner"
 
 import { authClient } from "@/features/auth/client"
@@ -9,6 +9,7 @@ import { createSeedLot, type SeedUnit } from "@/features/farm"
 import { useKbSpecies } from "@/features/kb/use-kb-species"
 import { catalogCommonName } from "@/i18n/format"
 import { useI18n } from "@/i18n/provider"
+import { compressImageFile } from "@/lib/compress-image"
 import { cn } from "@/lib/utils"
 import { Button } from "@/components/ui/button"
 import {
@@ -49,9 +50,42 @@ export function AddSeedLot({ className }: { className?: string }) {
   const [pending, setPending] = React.useState(false)
   const [error, setError] = React.useState<string>()
   const [unit, setUnit] = React.useState<SeedUnit>("шт")
+  const [photoUrl, setPhotoUrl] = React.useState<string | null>(null)
+  const [photoPending, setPhotoPending] = React.useState(false)
+  const fileInputRef = React.useRef<HTMLInputElement>(null)
 
   const species = kb?.species ?? []
   const organizationId = session?.session.activeOrganizationId
+
+  function resetFormState() {
+    setError(undefined)
+    setUnit("шт")
+    setPending(false)
+    setPhotoUrl(null)
+    setPhotoPending(false)
+    if (fileInputRef.current) {
+      fileInputRef.current.value = ""
+    }
+  }
+
+  async function onPhotoChange(event: React.ChangeEvent<HTMLInputElement>) {
+    const file = event.target.files?.[0]
+    if (!file) {
+      return
+    }
+
+    setPhotoPending(true)
+    setError(undefined)
+    try {
+      const compressed = await compressImageFile(file)
+      setPhotoUrl(compressed)
+    } catch {
+      setError(m.seeds.photoFailed)
+      setPhotoUrl(null)
+    } finally {
+      setPhotoPending(false)
+    }
+  }
 
   async function onSubmit(event: React.FormEvent<HTMLFormElement>) {
     event.preventDefault()
@@ -90,11 +124,12 @@ export function AddSeedLot({ className }: { className?: string }) {
         quantity,
         unit,
         packedAt: packedAt || null,
+        photoUrl,
       })
       toast.success(m.seeds.saved)
       setOpen(false)
       event.currentTarget.reset()
-      setUnit("шт")
+      resetFormState()
     } catch {
       setError(m.seeds.saveFailed)
     } finally {
@@ -108,9 +143,7 @@ export function AddSeedLot({ className }: { className?: string }) {
       onOpenChange={(next) => {
         setOpen(next)
         if (!next) {
-          setError(undefined)
-          setUnit("шт")
-          setPending(false)
+          resetFormState()
         }
       }}
     >
@@ -136,6 +169,63 @@ export function AddSeedLot({ className }: { className?: string }) {
           onSubmit={(event) => void onSubmit(event)}
         >
           <FieldGroup className="px-4">
+            <Field>
+              <FieldLabel>{m.seeds.photo}</FieldLabel>
+              <input
+                ref={fileInputRef}
+                type="file"
+                accept="image/*"
+                capture="environment"
+                className="sr-only"
+                onChange={(event) => void onPhotoChange(event)}
+              />
+              {photoUrl ? (
+                <div className="relative overflow-hidden rounded-xl bg-muted">
+                  {/* Preview of the just-picked plant photo */}
+                  {/* eslint-disable-next-line @next/next/no-img-element */}
+                  <img
+                    src={photoUrl}
+                    alt={m.seeds.photoPreviewAlt}
+                    className="aspect-[4/3] w-full object-cover"
+                  />
+                  <Button
+                    type="button"
+                    size="icon-sm"
+                    variant="secondary"
+                    className="absolute top-2 right-2"
+                    onClick={() => {
+                      setPhotoUrl(null)
+                      if (fileInputRef.current) {
+                        fileInputRef.current.value = ""
+                      }
+                    }}
+                    aria-label={m.seeds.photoRemove}
+                  >
+                    <XIcon />
+                  </Button>
+                </div>
+              ) : (
+                <Button
+                  type="button"
+                  variant="outline"
+                  className="h-auto min-h-24 w-full flex-col gap-2 py-6"
+                  disabled={photoPending}
+                  onClick={() => fileInputRef.current?.click()}
+                >
+                  {photoPending ? (
+                    <Spinner />
+                  ) : (
+                    <ImagePlusIcon className="size-6 text-muted-foreground" />
+                  )}
+                  <span className="text-sm font-medium">
+                    {photoPending ? m.seeds.photoProcessing : m.seeds.photoAdd}
+                  </span>
+                  <span className="text-xs font-normal text-muted-foreground">
+                    {m.seeds.photoHint}
+                  </span>
+                </Button>
+              )}
+            </Field>
             <Field data-invalid={error === m.seeds.speciesRequired || undefined}>
               <FieldLabel htmlFor="seed-species">{m.seeds.species}</FieldLabel>
               {species.length === 0 ? (
@@ -212,7 +302,7 @@ export function AddSeedLot({ className }: { className?: string }) {
             {error ? <FieldError>{error}</FieldError> : null}
           </FieldGroup>
           <SheetFooter>
-            <Button type="submit" disabled={pending || species.length === 0}>
+            <Button type="submit" disabled={pending || photoPending || species.length === 0}>
               {pending ? <Spinner data-icon="inline-start" /> : null}
               {m.seeds.save}
             </Button>

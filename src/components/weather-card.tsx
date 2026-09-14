@@ -72,9 +72,9 @@ export function WeatherCard() {
 
   if (weather.isPending && !snapshot) {
     return (
-      <div className="ml-auto flex shrink-0 items-center gap-1.5">
-        <Skeleton className="size-5 rounded-full" />
-        <Skeleton className="h-5 w-10" />
+      <div className="ml-auto flex shrink-0 items-center gap-2 sm:gap-1.5">
+        <Skeleton className="size-6 rounded-full sm:size-5" />
+        <Skeleton className="h-6 w-12 sm:h-5 sm:w-10" />
         <Skeleton className="hidden h-4 w-16 sm:block" />
       </div>
     )
@@ -82,7 +82,7 @@ export function WeatherCard() {
 
   if (!snapshot) {
     return (
-      <p className="ml-auto max-w-28 shrink-0 text-right text-xs text-muted-foreground">
+      <p className="ml-auto max-w-32 shrink-0 text-right text-sm text-muted-foreground sm:max-w-28 sm:text-xs">
         {m.home.weather.error}
       </p>
     )
@@ -96,15 +96,15 @@ export function WeatherCard() {
 
   return (
     <div
-      className="ml-auto flex shrink-0 items-center gap-1.5 whitespace-nowrap"
+      className="ml-auto flex shrink-0 items-center gap-2 whitespace-nowrap sm:gap-1.5"
       title={
         range
           ? `${m.home.weather.condition[kind]} · ${range} · ${m.home.weather.attribution}`
           : m.home.weather.attribution
       }
     >
-      <Icon className="size-5 text-muted-foreground" aria-hidden />
-      <span className="text-lg font-medium tabular-nums leading-none">
+      <Icon className="size-6 text-muted-foreground sm:size-5" aria-hidden />
+      <span className="text-xl font-medium tabular-nums leading-none sm:text-lg">
         {formatTemp(snapshot.current.temperature, unit)}
       </span>
       <span className="hidden text-sm text-muted-foreground sm:inline">
@@ -116,7 +116,10 @@ export function WeatherCard() {
         </span>
       ) : null}
       {snapshot.frost ? (
-        <SnowflakeIcon className="size-3.5 text-destructive" aria-label={m.home.weather.frost} />
+        <SnowflakeIcon
+          className="size-4 text-destructive sm:size-3.5"
+          aria-label={m.home.weather.frost}
+        />
       ) : null}
     </div>
   )

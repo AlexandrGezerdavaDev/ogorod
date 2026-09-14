@@ -252,7 +252,7 @@ function MyPlants({
                 }}
               >
                 <PlantCardImage
-                  src={getPlantProfile(plant.speciesId).imageUrl}
+                  src={plant.photoUrl || getPlantProfile(plant.speciesId).imageUrl}
                   alt={plant.speciesName || plant.cultivarName}
                 />
                 <div className="flex min-w-0 flex-1 flex-col gap-2 p-4 md:py-3 md:pr-4 md:pl-0">
@@ -333,6 +333,7 @@ function MyPlants({
             ? `${selected.bed} · ${interpolate(m.plants.quantityCount, { count: selected.quantity })} · ${plantedCopy(selected.plantedAt, locale, m.plants.planted, m.plants.plantedUnknown)}`
             : null
         }
+        imageUrl={selected?.photoUrl}
         open={selected !== null}
         onOpenChange={(next) => {
           if (!next) {

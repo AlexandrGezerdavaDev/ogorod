@@ -123,7 +123,7 @@ export function SeedsView() {
               >
                 <div className="flex flex-col md:flex-row md:items-start">
                   <PlantCardImage
-                    src={getPlantProfile(lot.speciesId).imageUrl}
+                    src={lot.photoUrl || getPlantProfile(lot.speciesId).imageUrl}
                     alt={lot.speciesName || lot.cultivarName}
                   />
                   <div className="flex min-w-0 flex-1 flex-col py-(--card-spacing)">

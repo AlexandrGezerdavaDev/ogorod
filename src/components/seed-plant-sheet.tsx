@@ -28,6 +28,7 @@ export function SeedPlantSheet({
       description={
         lot ? formatSeedQuantityLabel(m, lot.quantity, lot.unit) : null
       }
+      imageUrl={lot?.photoUrl}
       open={open}
       onOpenChange={onOpenChange}
     />

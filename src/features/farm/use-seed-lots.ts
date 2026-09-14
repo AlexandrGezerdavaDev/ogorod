@@ -18,6 +18,7 @@ export type DisplaySeedLot = {
   quantity: number
   unit: "шт" | "г"
   packedAt: string | null
+  photoUrl: string | null
 }
 
 export function useSeedLots() {
@@ -53,6 +54,7 @@ export function useSeedLots() {
           quantity: lot.quantity,
           unit: normalizeSeedUnit(lot.unit),
           packedAt: lot.packedAt ?? null,
+          photoUrl: lot.photoUrl ?? null,
         }
       })
 
