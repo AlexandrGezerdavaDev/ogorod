@@ -1,9 +1,17 @@
+import { readFile } from "node:fs/promises"
+import path from "node:path"
+
 import { ImageResponse } from "next/og"
 
 export const size = { width: 32, height: 32 }
 export const contentType = "image/png"
 
-export default function Icon() {
+export default async function Icon() {
+  const logo = await readFile(
+    path.join(process.cwd(), "public/brand/ogorod-logo.png")
+  )
+  const src = `data:image/png;base64,${logo.toString("base64")}`
+
   return new ImageResponse(
     (
       <div
@@ -11,15 +19,11 @@ export default function Icon() {
           width: "100%",
           height: "100%",
           display: "flex",
-          alignItems: "center",
-          justifyContent: "center",
-          background: "#3f6b45",
-          color: "#f6f4ef",
-          fontSize: 20,
-          fontWeight: 700,
+          background: "#FFFFFF",
         }}
       >
-        О
+        {/* eslint-disable-next-line @next/next/no-img-element */}
+        <img src={src} width={32} height={32} alt="" />
       </div>
     ),
     { ...size }

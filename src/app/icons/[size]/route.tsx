@@ -1,3 +1,6 @@
+import { readFile } from "node:fs/promises"
+import path from "node:path"
+
 import { ImageResponse } from "next/og"
 
 const ALLOWED = new Set([192, 512])
@@ -13,6 +16,11 @@ export async function GET(
     return new Response("Not found", { status: 404 })
   }
 
+  const logo = await readFile(
+    path.join(process.cwd(), "public/brand/ogorod-logo.png")
+  )
+  const src = `data:image/png;base64,${logo.toString("base64")}`
+
   return new ImageResponse(
     (
       <div
@@ -20,15 +28,11 @@ export async function GET(
           width: "100%",
           height: "100%",
           display: "flex",
-          alignItems: "center",
-          justifyContent: "center",
-          background: "#3f6b45",
-          color: "#f6f4ef",
-          fontSize: dimension * 0.42,
-          fontWeight: 700,
+          background: "#FFFFFF",
         }}
       >
-        О
+        {/* eslint-disable-next-line @next/next/no-img-element */}
+        <img src={src} width={dimension} height={dimension} alt="" />
       </div>
     ),
     { width: dimension, height: dimension }

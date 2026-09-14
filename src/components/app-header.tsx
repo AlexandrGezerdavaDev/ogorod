@@ -6,6 +6,7 @@ import { usePathname } from "next/navigation"
 import { pageKeys, type AppRoute } from "@/lib/navigation"
 import { Separator } from "@/components/ui/separator"
 import { HeaderAccountMenu } from "@/components/account-menu"
+import { OgorodLogo } from "@/components/ogorod-logo"
 import { useI18n } from "@/i18n/provider"
 import {
   Breadcrumb,
@@ -31,7 +32,8 @@ export function AppHeader() {
           orientation="vertical"
           className="mr-2 hidden data-vertical:h-4 data-vertical:self-auto md:block"
         />
-        <p className="truncate font-heading text-base font-medium md:hidden">
+        <p className="flex min-w-0 items-center gap-2 truncate font-heading text-base font-medium md:hidden">
+          <OgorodLogo size={22} className="size-5 shrink-0" />
           OGOROD
         </p>
         <Breadcrumb className="hidden min-w-0 md:block">

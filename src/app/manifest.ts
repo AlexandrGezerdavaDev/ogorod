@@ -7,12 +7,18 @@ export default function manifest(): MetadataRoute.Manifest {
     description: "Город у кишені: рослини, полив, календар і сканування камерою.",
     start_url: "/",
     display: "standalone",
-    background_color: "#f6f4ef",
-    theme_color: "#3f6b45",
+    background_color: "#FFFFFF",
+    theme_color: "#6B9E6B",
     lang: "uk",
     orientation: "portrait-primary",
     categories: ["lifestyle", "utilities"],
     icons: [
+      {
+        src: "/brand/ogorod-logo.png",
+        sizes: "512x512",
+        type: "image/png",
+        purpose: "any",
+      },
       {
         src: "/icons/192",
         sizes: "192x192",
