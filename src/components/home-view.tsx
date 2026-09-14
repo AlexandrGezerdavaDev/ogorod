@@ -24,22 +24,20 @@ import {
   CardHeader,
   CardTitle,
 } from "@/components/ui/card"
-import { interpolate, dateFnsLocale } from "@/i18n/format"
+import { interpolate } from "@/i18n/format"
 import { useI18n } from "@/i18n/provider"
 import { WeatherCard } from "@/components/weather-card"
 
-const todayTasks = tasks.filter((task) => task.date === "2026-09-08")
+const todayKey = format(new Date(), "yyyy-MM-dd")
+const todayTasks = tasks.filter((task) => task.date === todayKey)
 
 export function HomeView({ name }: { name: string | null }) {
-  const { locale, messages: m } = useI18n()
+  const { messages: m } = useI18n()
   const { lots } = useSeedLots()
   const { plantings } = usePlantings()
   const { isDone } = usePlantCare()
   const agedLots = lots.filter((lot) => isAgedSeedLot(lot.packedAt))
   const needWater = plantings.filter((plant) => !isDone(plant.id, "water")).length
-  const date = format(new Date(2026, 8, 8), "d MMMM", {
-    locale: dateFnsLocale(locale),
-  })
 
   return (
     <div className="flex flex-col gap-4">
@@ -50,9 +48,6 @@ export function HomeView({ name }: { name: string | null }) {
               ? interpolate(m.home.greetingName, { name })
               : m.home.greeting}
           </h1>
-          <p className="truncate text-muted-foreground">
-            {interpolate(m.home.todayLine, { date, count: needWater })}
-          </p>
         </div>
         <WeatherCard />
       </div>

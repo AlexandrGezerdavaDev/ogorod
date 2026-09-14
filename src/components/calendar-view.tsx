@@ -31,7 +31,7 @@ function toDateKey(date: Date) {
 export function CalendarView() {
   const { locale, messages: m } = useI18n()
   const { prefs } = usePreferences()
-  const [selected, setSelected] = React.useState<Date>(new Date(2026, 8, 8))
+  const [selected, setSelected] = React.useState<Date>(() => new Date())
   const dayKey = toDateKey(selected)
   const dayTasks = tasks.filter((task) => task.date === dayKey)
   const marked = tasks.map((task) => new Date(`${task.date}T12:00:00`))
