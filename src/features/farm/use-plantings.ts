@@ -27,7 +27,9 @@ export function usePlantings(options?: { fieldId?: string | null }) {
   const fieldId = options?.fieldId
   const { locale, messages: m } = useI18n()
   const { data: session, isPending: sessionPending } = authClient.useSession()
-  const organizationId = session?.session.activeOrganizationId
+  const { data: organizations } = authClient.useListOrganizations()
+  const organizationId =
+    session?.session.activeOrganizationId ?? organizations?.[0]?.id
   const kb = useKbSpecies()
   const rows = useLiveQuery(
     () => (localDb ? localDb.plantings.toArray() : []),

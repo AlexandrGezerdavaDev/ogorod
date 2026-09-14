@@ -41,9 +41,11 @@ export function SpaceFormSheet({
 }) {
   const { messages: m } = useI18n()
   const { data: session } = authClient.useSession()
+  const { data: organizations } = authClient.useListOrganizations()
   const [pending, setPending] = React.useState(false)
   const [error, setError] = React.useState<string>()
-  const organizationId = session?.session.activeOrganizationId
+  const organizationId =
+    session?.session.activeOrganizationId ?? organizations?.[0]?.id
   const editing = Boolean(space)
 
   async function onSubmit(event: React.FormEvent<HTMLFormElement>) {
@@ -57,7 +59,16 @@ export function SpaceFormSheet({
       setError(m.garden.spaceNameRequired)
       return
     }
-    if (!organizationId) {
+
+    let gardenId = organizationId
+    if (!gardenId) {
+      const { data: orgs } = await authClient.organization.list()
+      gardenId = orgs?.[0]?.id
+      if (gardenId) {
+        await authClient.organization.setActive({ organizationId: gardenId })
+      }
+    }
+    if (!gardenId) {
       setError(m.garden.spaceSaveFailed)
       return
     }
@@ -68,17 +79,21 @@ export function SpaceFormSheet({
         await updateField(space.id, name)
         toast.success(m.garden.spaceUpdated)
       } else {
-        await createField(organizationId, name)
+        await createField(gardenId, name)
         toast.success(m.garden.spaceSaved)
       }
       onOpenChange(false)
     } catch (cause) {
       const code = cause instanceof Error ? cause.message : ""
-      setError(
-        code === "duplicate_name"
-          ? m.garden.spaceDuplicate
-          : m.garden.spaceSaveFailed
-      )
+      if (code === "duplicate_name") {
+        setError(m.garden.spaceDuplicate)
+      } else if (code === "no_device") {
+        setError(m.garden.spaceSaveFailed)
+        console.error("createField failed: IndexedDB/device unavailable")
+      } else {
+        setError(m.garden.spaceSaveFailed)
+        console.error("createField failed", cause)
+      }
     } finally {
       setPending(false)
     }

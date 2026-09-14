@@ -378,7 +378,7 @@ export const uk = {
   },
   auth: {
     loginTitle: "З поверненням",
-    loginDesc: "Увійдіть електронною поштою. Apple і Google з’являться пізніше.",
+    loginDesc: "Увійдіть електронною поштою.",
     orEmail: "або поштою",
     email: "Електронна пошта",
     password: "Пароль",

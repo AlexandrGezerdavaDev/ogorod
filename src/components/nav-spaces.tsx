@@ -5,7 +5,7 @@ import Link from "next/link"
 import { usePathname, useSearchParams } from "next/navigation"
 import { FenceIcon, MoreHorizontalIcon, PlusIcon } from "lucide-react"
 
-import { useSpaces, type DisplaySpace } from "@/features/farm"
+import { spaceIcon, useSpaces, type DisplaySpace } from "@/features/farm"
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -71,46 +71,49 @@ export function NavSpaces() {
                 <span>{m.garden.allSpaces}</span>
               </SidebarMenuButton>
             </SidebarMenuItem>
-            {spaces.map((space) => (
-              <SidebarMenuItem key={space.id}>
-                <SidebarMenuButton
-                  isActive={selectedId === space.id}
-                  render={<Link href={plantsHref(space.id)} />}
-                >
-                  <FenceIcon />
-                  <span>{space.label}</span>
-                </SidebarMenuButton>
-                <DropdownMenu>
-                  <DropdownMenuTrigger
-                    render={
-                      <SidebarMenuAction
-                        showOnHover
-                        className="aria-expanded:bg-muted"
-                      />
-                    }
+            {spaces.map((space) => {
+              const Icon = spaceIcon(space.name)
+              return (
+                <SidebarMenuItem key={space.id}>
+                  <SidebarMenuButton
+                    isActive={selectedId === space.id}
+                    render={<Link href={plantsHref(space.id)} />}
                   >
-                    <MoreHorizontalIcon />
-                    <span className="sr-only">{m.garden.more}</span>
-                  </DropdownMenuTrigger>
-                  <DropdownMenuContent
-                    className="w-fit"
-                    side={isMobile ? "bottom" : "right"}
-                    align={isMobile ? "end" : "start"}
-                  >
-                    <DropdownMenuGroup>
-                      <DropdownMenuItem onClick={() => setEditSpace(space)}>
-                        {m.garden.editSpace}
-                      </DropdownMenuItem>
-                      <DropdownMenuItem
-                        render={<Link href={plantsHref(space.id)} />}
-                      >
-                        {m.garden.addPlant}
-                      </DropdownMenuItem>
-                    </DropdownMenuGroup>
-                  </DropdownMenuContent>
-                </DropdownMenu>
-              </SidebarMenuItem>
-            ))}
+                    <Icon />
+                    <span>{space.label}</span>
+                  </SidebarMenuButton>
+                  <DropdownMenu>
+                    <DropdownMenuTrigger
+                      render={
+                        <SidebarMenuAction
+                          showOnHover
+                          className="aria-expanded:bg-muted"
+                        />
+                      }
+                    >
+                      <MoreHorizontalIcon />
+                      <span className="sr-only">{m.garden.more}</span>
+                    </DropdownMenuTrigger>
+                    <DropdownMenuContent
+                      className="w-fit"
+                      side={isMobile ? "bottom" : "right"}
+                      align={isMobile ? "end" : "start"}
+                    >
+                      <DropdownMenuGroup>
+                        <DropdownMenuItem onClick={() => setEditSpace(space)}>
+                          {m.garden.editSpace}
+                        </DropdownMenuItem>
+                        <DropdownMenuItem
+                          render={<Link href={plantsHref(space.id)} />}
+                        >
+                          {m.garden.addPlant}
+                        </DropdownMenuItem>
+                      </DropdownMenuGroup>
+                    </DropdownMenuContent>
+                  </DropdownMenu>
+                </SidebarMenuItem>
+              )
+            })}
           </>
         )}
       </SidebarMenu>

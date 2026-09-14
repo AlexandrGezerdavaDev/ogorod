@@ -8,7 +8,6 @@ import {
   HashIcon,
   LeafIcon,
   LeafyGreenIcon,
-  MapPinIcon,
   SearchIcon,
   Trash2Icon,
   XIcon,
@@ -17,6 +16,7 @@ import { toast } from "sonner"
 
 import {
   deletePlanting,
+  spaceIcon,
   usePlantings,
   useSpaces,
   type DisplayPlanting,
@@ -228,6 +228,7 @@ function MyPlants({
           const title = plant.speciesName
             ? `${plant.speciesName} · ${plant.cultivarName}`
             : plant.cultivarName
+          const SpaceIcon = spaceIcon(plant.fieldName || plant.bed)
           return (
             <Card
               key={plant.id}
@@ -277,7 +278,7 @@ function MyPlants({
                   </div>
                   <div className="flex flex-col gap-1 text-sm text-muted-foreground">
                     <span className="inline-flex items-center gap-1.5">
-                      <MapPinIcon className="size-3.5 shrink-0" aria-hidden />
+                      <SpaceIcon className="size-3.5 shrink-0" aria-hidden />
                       {plant.bed}
                     </span>
                     <span className="inline-flex items-center gap-1.5">

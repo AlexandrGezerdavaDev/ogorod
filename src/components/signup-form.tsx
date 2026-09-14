@@ -66,10 +66,24 @@ export function SignupForm({
       return
     }
 
-    await authClient.organization.create({
-      name: m.auth.defaultGarden,
-      slug: `farm-${crypto.randomUUID().slice(0, 8)}`,
-    })
+    const { data: created, error: createOrgError } =
+      await authClient.organization.create({
+        name: m.auth.defaultGarden,
+        slug: `farm-${crypto.randomUUID().slice(0, 8)}`,
+      })
+
+    if (createOrgError) {
+      setPending(false)
+      setError(
+        authErrorMessage(createOrgError, m.auth.errors, m.auth.errors.fallback)
+      )
+      return
+    }
+
+    const gardenId = created?.id
+    if (gardenId) {
+      await authClient.organization.setActive({ organizationId: gardenId })
+    }
 
     setPending(false)
     const next = isSafeRedirect(from) ? from! : "/"

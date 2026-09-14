@@ -380,7 +380,7 @@ export const ru: Messages = {
   },
   auth: {
     loginTitle: "С возвращением",
-    loginDesc: "Войдите по электронной почте. Apple и Google появятся позже.",
+    loginDesc: "Войдите по электронной почте.",
     orEmail: "или почтой",
     email: "Электронная почта",
     password: "Пароль",

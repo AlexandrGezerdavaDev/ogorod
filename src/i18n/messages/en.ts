@@ -380,7 +380,7 @@ export const en: Messages = {
   },
   auth: {
     loginTitle: "Welcome back",
-    loginDesc: "Sign in with email. Apple and Google will come later.",
+    loginDesc: "Sign in with email.",
     orEmail: "or email",
     email: "Email",
     password: "Password",

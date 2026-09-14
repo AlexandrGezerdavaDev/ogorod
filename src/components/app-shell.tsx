@@ -8,6 +8,7 @@ import { AppSidebar } from "@/components/app-sidebar"
 import { BottomNav } from "@/components/bottom-nav"
 import { SidebarInset, SidebarProvider } from "@/components/ui/sidebar"
 import { SyncProvider } from "@/features/sync/provider"
+import { EnsureActiveOrganization } from "@/features/auth/ensure-active-organization"
 
 export function AppShell({ children }: { children: React.ReactNode }) {
   const pathname = usePathname()
@@ -15,6 +16,7 @@ export function AppShell({ children }: { children: React.ReactNode }) {
 
   return (
     <SyncProvider>
+      <EnsureActiveOrganization />
       <SidebarProvider>
         <AppSidebar />
         <SidebarInset>

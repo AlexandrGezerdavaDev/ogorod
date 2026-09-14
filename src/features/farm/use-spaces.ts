@@ -17,7 +17,9 @@ export type DisplaySpace = {
 export function useSpaces() {
   const { messages: m } = useI18n()
   const { data: session } = authClient.useSession()
-  const organizationId = session?.session.activeOrganizationId
+  const { data: organizations } = authClient.useListOrganizations()
+  const organizationId =
+    session?.session.activeOrganizationId ?? organizations?.[0]?.id
   const rows = useLiveQuery(
     () => (localDb ? localDb.fields.toArray() : []),
     []
