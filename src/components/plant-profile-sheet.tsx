@@ -118,7 +118,12 @@ export function PlantProfileSheet({
                     isMobile
                       ? cn(
                           "h-auto min-h-10 flex-none justify-center gap-2 rounded-xl border border-border px-3 py-2.5",
-                          "after:hidden data-active:border-primary/40 data-active:bg-primary/10 data-active:shadow-none"
+                          "after:hidden data-active:shadow-none",
+                          section === "genetics"
+                            ? "data-active:border-genetics/40 data-active:bg-genetics-soft data-active:text-genetics"
+                            : section === "growing"
+                              ? "data-active:border-growth/40 data-active:bg-growth-soft data-active:text-growth"
+                              : "data-active:border-primary/40 data-active:bg-primary/10"
                         )
                       : "shrink-0"
                   }

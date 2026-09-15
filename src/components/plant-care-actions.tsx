@@ -133,9 +133,11 @@ function CareButton({
 }) {
   const Icon = kind === "water" ? DropletIcon : SproutIcon
   const active =
+    kind === "water" ? "text-water" : "text-soil"
+  const activeChip =
     kind === "water"
-      ? "text-sky-700 dark:text-sky-300"
-      : "text-amber-800 dark:text-amber-300"
+      ? "border-water/30 bg-water-soft text-water"
+      : "border-soil/30 bg-soil-soft text-soil"
 
   return (
     <button
@@ -160,9 +162,7 @@ function CareButton({
           className={cn(
             "flex size-8 items-center justify-center rounded-full border transition-colors",
             pressed
-              ? kind === "water"
-                ? "border-sky-500/30 bg-sky-500/10 text-sky-700 dark:text-sky-300"
-                : "border-amber-500/30 bg-amber-500/10 text-amber-800 dark:text-amber-300"
+              ? activeChip
               : "border-border text-muted-foreground"
           )}
         >

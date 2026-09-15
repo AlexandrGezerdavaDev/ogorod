@@ -19,7 +19,7 @@ export function BottomNav() {
   return (
     <nav
       aria-label={m.nav.bottom}
-      className="fixed inset-x-0 bottom-0 z-40 border-t bg-background/95 pb-[env(safe-area-inset-bottom)] backdrop-blur-md md:hidden"
+      className="fixed inset-x-0 bottom-0 z-40 border-t border-sidebar-border bg-sidebar/95 pb-[env(safe-area-inset-bottom)] backdrop-blur-md md:hidden"
     >
       <ul className="grid h-16 grid-cols-5 items-end px-1">
         {leftItems.map((item) => (
@@ -37,7 +37,7 @@ export function BottomNav() {
             href="/scan"
             aria-label={m.nav.scanAria}
             className={cn(
-              "-mt-6 flex size-14 items-center justify-center rounded-full bg-primary text-primary-foreground shadow-lg ring-4 ring-background transition-transform active:scale-95",
+              "-mt-6 flex size-14 items-center justify-center rounded-full bg-primary text-primary-foreground shadow-lg ring-4 ring-sidebar transition-transform active:scale-95",
               pathname === "/scan" && "ring-ring/40"
             )}
           >

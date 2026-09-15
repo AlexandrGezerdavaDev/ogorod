@@ -39,8 +39,8 @@ export async function generateMetadata(): Promise<Metadata> {
 
 export const viewport: Viewport = {
   themeColor: [
-    { media: "(prefers-color-scheme: light)", color: "#3f6b45" },
-    { media: "(prefers-color-scheme: dark)", color: "#1c2b1e" },
+    { media: "(prefers-color-scheme: light)", color: "#4F7A55" },
+    { media: "(prefers-color-scheme: dark)", color: "#282928" },
   ],
   width: "device-width",
   initialScale: 1,
