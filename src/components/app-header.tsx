@@ -27,13 +27,13 @@ export function AppHeader() {
   return (
     <header className="flex h-16 shrink-0 items-center gap-2 border-b transition-[width,height] ease-linear group-has-data-[collapsible=icon]/sidebar-wrapper:h-12 md:border-b-0">
       <div className="flex min-w-0 flex-1 items-center gap-2 px-4">
-        <SidebarTrigger className="-ml-1" />
+        <SidebarTrigger className="-ml-1 hidden md:inline-flex" />
         <Separator
           orientation="vertical"
           className="mr-2 hidden data-vertical:h-4 data-vertical:self-auto md:block"
         />
         <p className="flex min-w-0 items-center gap-2 truncate font-heading text-base font-medium md:hidden">
-          <OgorodLogo size={22} className="size-5 shrink-0" />
+          <OgorodLogo size={32} className="size-8 shrink-0" />
           OGOROD
         </p>
         <Breadcrumb className="hidden min-w-0 md:block">
