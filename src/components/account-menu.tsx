@@ -105,11 +105,18 @@ export function HeaderAccountMenu() {
   return (
     <DropdownMenu>
       <DropdownMenuTrigger
-        render={<Button variant="ghost" size="icon" aria-label={m.account.aria} />}
+        render={
+          <Button
+            variant="ghost"
+            size="icon-lg"
+            className="size-8 rounded-full"
+            aria-label={m.account.aria}
+          />
+        }
       >
-        <Avatar size="sm">
+        <Avatar size="lg">
           <AvatarImage src={image} alt={name} />
-          <AvatarFallback>{initials}</AvatarFallback>
+          <AvatarFallback className="text-base">{initials}</AvatarFallback>
         </Avatar>
       </DropdownMenuTrigger>
       <DropdownMenuContent align="end" className="min-w-56">

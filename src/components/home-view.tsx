@@ -41,9 +41,9 @@ export function HomeView({ name }: { name: string | null }) {
 
   return (
     <div className="flex flex-col gap-4">
-      <div className="flex items-center justify-between gap-4">
+      <div className="flex items-center justify-between gap-4 pt-4">
         <div className="min-w-0 flex-1">
-          <h1 className="truncate font-heading text-2xl font-medium tracking-tight">
+          <h1 className="font-heading text-2xl font-medium tracking-tight">
             {name
               ? interpolate(m.home.greetingName, { name })
               : m.home.greeting}

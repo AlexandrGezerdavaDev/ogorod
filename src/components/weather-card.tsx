@@ -59,7 +59,7 @@ export function WeatherCard() {
     return (
       <Button
         variant="ghost"
-        size="sm"
+        size="default"
         className="ml-auto shrink-0 text-muted-foreground"
         render={<Link href="/settings" />}
         nativeButton={false}
