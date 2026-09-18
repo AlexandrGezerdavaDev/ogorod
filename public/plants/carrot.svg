@@ -1,0 +1,13 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 640 400" role="img" aria-label="Carrot">
+  <defs>
+    <linearGradient id="bg-carrot" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0%" stop-color="#3d6b4f"/>
+      <stop offset="100%" stop-color="#1f3d2c"/>
+    </linearGradient>
+  </defs>
+  <rect width="640" height="400" fill="url(#bg-carrot)"/>
+  <polygon points="320,90 380,330 260,330" fill="#e07a28"/>
+  <path d="M300 90 C290 40 250 30 240 20" fill="none" stroke="#2f8f4e" stroke-width="8"/>
+  <path d="M320 80 C325 30 320 20 318 10" fill="none" stroke="#3d8c3a" stroke-width="8"/>
+  <path d="M340 90 C360 40 390 30 410 20" fill="none" stroke="#2f8f4e" stroke-width="8"/>
+</svg>

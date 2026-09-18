@@ -1,0 +1,15 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 640 400" role="img" aria-label="Alfalfa">
+  <defs>
+    <linearGradient id="bg-alfalfa" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0%" stop-color="#3d6b4f"/>
+      <stop offset="100%" stop-color="#1f3d2c"/>
+    </linearGradient>
+  </defs>
+  <rect width="640" height="400" fill="url(#bg-alfalfa)"/>
+  <rect x="312" y="180" width="16" height="160" rx="8" fill="#7fbf63"/>
+  <ellipse cx="300" cy="120" rx="14" ry="22" fill="#7b4aa1"/>
+  <ellipse cx="340" cy="110" rx="14" ry="22" fill="#8e5bb8"/>
+  <ellipse cx="320" cy="150" rx="14" ry="22" fill="#7b4aa1"/>
+  <ellipse cx="280" cy="230" rx="30" ry="14" fill="#4aa14a"/>
+  <ellipse cx="360" cy="230" rx="30" ry="14" fill="#3d8c3a"/>
+</svg>

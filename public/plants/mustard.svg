@@ -1,0 +1,15 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 640 400" role="img" aria-label="White mustard">
+  <defs>
+    <linearGradient id="bg-mustard" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0%" stop-color="#3d6b4f"/>
+      <stop offset="100%" stop-color="#1f3d2c"/>
+    </linearGradient>
+  </defs>
+  <rect width="640" height="400" fill="url(#bg-mustard)"/>
+  <rect x="312" y="190" width="16" height="160" rx="8" fill="#7fbf63"/>
+  <circle cx="300" cy="120" r="18" fill="#ffe24a"/>
+  <circle cx="340" cy="125" r="18" fill="#f5d031"/>
+  <circle cx="320" cy="155" r="18" fill="#ffe24a"/>
+  <rect x="250" y="210" width="40" height="14" rx="7" fill="#c9d46a"/>
+  <rect x="350" y="225" width="40" height="14" rx="7" fill="#c9d46a"/>
+</svg>

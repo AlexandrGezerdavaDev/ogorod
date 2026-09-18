@@ -43,6 +43,7 @@ export const config = {
     "/calendar/:path*",
     "/seeds/:path*",
     "/settings/:path*",
+    "/kb",
     "/login",
     "/signup",
     "/forgot-password",

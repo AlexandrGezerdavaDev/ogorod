@@ -1,16 +1,23 @@
 "use client"
 
 import * as React from "react"
+import { format, parseISO } from "date-fns"
 import { ImagePlusIcon, PlusIcon, XIcon } from "lucide-react"
 import { toast } from "sonner"
 
 import { authClient } from "@/features/auth/client"
 import { createSeedLot, type SeedUnit } from "@/features/farm"
 import { useKbSpecies } from "@/features/kb/use-kb-species"
-import { catalogCommonName } from "@/i18n/format"
+import {
+  catalogCommonName,
+  dateFnsLocale,
+  formatSeedQuantityLabel,
+  interpolate,
+} from "@/i18n/format"
 import { useI18n } from "@/i18n/provider"
 import { compressImageFile } from "@/lib/compress-image"
 import { cn } from "@/lib/utils"
+import { SeedLotQrLabel, type SeedLotQrData } from "@/components/seed-lot-qr-label"
 import { Button } from "@/components/ui/button"
 import {
   Field,
@@ -52,6 +59,7 @@ export function AddSeedLot({ className }: { className?: string }) {
   const [unit, setUnit] = React.useState<SeedUnit>("шт")
   const [photoUrl, setPhotoUrl] = React.useState<string | null>(null)
   const [photoPending, setPhotoPending] = React.useState(false)
+  const [created, setCreated] = React.useState<SeedLotQrData | null>(null)
   const fileInputRef = React.useRef<HTMLInputElement>(null)
 
   const species = kb?.species ?? []
@@ -63,6 +71,7 @@ export function AddSeedLot({ className }: { className?: string }) {
     setPending(false)
     setPhotoUrl(null)
     setPhotoPending(false)
+    setCreated(null)
     if (fileInputRef.current) {
       fileInputRef.current.value = ""
     }
@@ -117,7 +126,7 @@ export function AddSeedLot({ className }: { className?: string }) {
 
     setPending(true)
     try {
-      await createSeedLot({
+      const id = await createSeedLot({
         organizationId,
         speciesId,
         name,
@@ -126,10 +135,25 @@ export function AddSeedLot({ className }: { className?: string }) {
         packedAt: packedAt || null,
         photoUrl,
       })
+      const speciesRow = species.find((item) => item.id === speciesId)
+      const title = speciesRow
+        ? `${catalogCommonName(locale, speciesRow)} · ${name}`
+        : name
+      const packedDate = packedAt ? parseISO(packedAt) : null
+      const packedValid = packedDate && !Number.isNaN(packedDate.getTime())
+      const packedLabel = packedValid
+        ? interpolate(m.seeds.packed, {
+            date: format(packedDate, "d MMMM yyyy", {
+              locale: dateFnsLocale(locale),
+            }),
+          })
+        : m.seeds.packedUnknown
+      setCreated({
+        id,
+        title,
+        meta: `${formatSeedQuantityLabel(m, quantity, unit)} · ${packedLabel}`,
+      })
       toast.success(m.seeds.saved)
-      setOpen(false)
-      event.currentTarget.reset()
-      resetFormState()
     } catch {
       setError(m.seeds.saveFailed)
     } finally {
@@ -160,9 +184,23 @@ export function AddSeedLot({ className }: { className?: string }) {
       </SheetTrigger>
       <SheetContent side="bottom" className="max-h-[90vh] overflow-y-auto">
         <SheetHeader>
-          <SheetTitle>{m.seeds.addTitle}</SheetTitle>
-          <SheetDescription>{m.seeds.addDesc}</SheetDescription>
+          <SheetTitle>{created ? m.seeds.qrTitle : m.seeds.addTitle}</SheetTitle>
+          <SheetDescription>
+            {created ? m.seeds.qrDesc : m.seeds.addDesc}
+          </SheetDescription>
         </SheetHeader>
+        {created ? (
+          <>
+            <div className="px-4">
+              <SeedLotQrLabel lot={created} />
+            </div>
+            <SheetFooter>
+              <Button type="button" variant="outline" onClick={() => setOpen(false)}>
+                {m.seeds.qrDone}
+              </Button>
+            </SheetFooter>
+          </>
+        ) : (
         <form
           key={open ? "open" : "closed"}
           className="flex flex-col gap-4"
@@ -308,6 +346,7 @@ export function AddSeedLot({ className }: { className?: string }) {
             </Button>
           </SheetFooter>
         </form>
+        )}
       </SheetContent>
     </Sheet>
   )

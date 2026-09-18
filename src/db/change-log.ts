@@ -3,8 +3,18 @@ import { max } from "drizzle-orm"
 import { db } from "./index"
 import { farmChange, kbChange } from "./schema"
 
+export type KbChangeEntity =
+  | "species"
+  | "cultivar"
+  | "disease"
+  | "classification_group"
+  | "classification_value"
+  | "species_classification"
+  | "species_disease"
+  | "care_profile"
+
 export async function appendKbChange(
-  entity: "species" | "cultivar" | "disease",
+  entity: KbChangeEntity,
   entityId: string,
   operation: "upsert" | "delete"
 ) {

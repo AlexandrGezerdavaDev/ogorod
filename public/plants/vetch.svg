@@ -1,0 +1,13 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 640 400" role="img" aria-label="Vetch">
+  <defs>
+    <linearGradient id="bg-vetch" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0%" stop-color="#3d6b4f"/>
+      <stop offset="100%" stop-color="#1f3d2c"/>
+    </linearGradient>
+  </defs>
+  <rect width="640" height="400" fill="url(#bg-vetch)"/>
+  <path d="M160 280 C260 80 380 80 480 280" fill="none" stroke="#4aa14a" stroke-width="14" stroke-linecap="round"/>
+  <circle cx="280" cy="140" r="16" fill="#8e5bb8"/>
+  <circle cx="360" cy="135" r="16" fill="#7b4aa1"/>
+  <circle cx="320" cy="175" r="14" fill="#8e5bb8"/>
+</svg>

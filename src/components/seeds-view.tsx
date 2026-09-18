@@ -1,21 +1,26 @@
 "use client"
 
-import { useState } from "react"
+import { useEffect, useRef, useState } from "react"
+import { useSearchParams } from "next/navigation"
 import { format, parseISO } from "date-fns"
-import { SproutIcon, Trash2Icon } from "lucide-react"
+import { QrCodeIcon, SproutIcon, Trash2Icon } from "lucide-react"
 import { toast } from "sonner"
 
 import { deleteSeedLot, useSeedLots, type DisplaySeedLot } from "@/features/farm"
-import { getPlantProfile } from "@/features/kb/plant-profiles"
+import { useKbSpecies } from "@/features/kb/use-kb-species"
+import { resolveSpeciesImageUrl } from "@/features/kb/resolve-profile"
 import {
   isAgedSeedLot,
   seedLotAgeYears,
   SEED_LOT_AGE_YEARS,
 } from "@/lib/garden-data"
+import { SEED_LOT_QUERY_PARAM } from "@/lib/seed-lot-qr"
 import { AddSeedLot } from "@/components/add-seed-lot"
 import { EditSeedQuantity } from "@/components/edit-seed-quantity"
 import { PlantCardImage } from "@/components/plant-card-image"
+import { SeedLotQrSheet } from "@/components/seed-lot-qr-sheet"
 import { SeedPlantSheet } from "@/components/seed-plant-sheet"
+import type { SeedLotQrData } from "@/components/seed-lot-qr-label"
 import {
   AlertDialog,
   AlertDialogAction,
@@ -52,12 +57,33 @@ import {
   interpolate,
 } from "@/i18n/format"
 import { useI18n } from "@/i18n/provider"
+import type { Locale } from "@/i18n/config"
+import type { Messages } from "@/i18n/messages"
 import { cn } from "@/lib/utils"
 
 export function SeedsView() {
   const { locale, messages: m } = useI18n()
   const { lots, isPending } = useSeedLots()
+  const kb = useKbSpecies()
+  const searchParams = useSearchParams()
   const [selected, setSelected] = useState<DisplaySeedLot | null>(null)
+  const [qrLot, setQrLot] = useState<DisplaySeedLot | null>(null)
+  const openedLotParam = useRef<string | null>(null)
+  const lotParam = searchParams.get(SEED_LOT_QUERY_PARAM)
+
+  useEffect(() => {
+    if (!lotParam || isPending) {
+      return
+    }
+    if (openedLotParam.current === lotParam) {
+      return
+    }
+    const found = lots.find((lot) => lot.id === lotParam)
+    if (found) {
+      openedLotParam.current = lotParam
+      setSelected(found)
+    }
+  }, [isPending, lotParam, lots])
 
   const sorted = [...lots].sort((left, right) => {
     const agedLeft = isAgedSeedLot(left.packedAt) ? 0 : 1
@@ -123,7 +149,10 @@ export function SeedsView() {
               >
                 <div className="flex flex-col md:flex-row md:items-start">
                   <PlantCardImage
-                    src={lot.photoUrl || getPlantProfile(lot.speciesId).imageUrl}
+                    src={
+                      lot.photoUrl ||
+                      resolveSpeciesImageUrl(lot.speciesId, kb.data)
+                    }
                     alt={lot.speciesName || lot.cultivarName}
                   />
                   <div className="flex min-w-0 flex-1 flex-col py-(--card-spacing)">
@@ -141,6 +170,16 @@ export function SeedsView() {
                           onKeyDown={(event) => event.stopPropagation()}
                         >
                           <EditSeedQuantity lot={lot} />
+                          <Button
+                            type="button"
+                            variant="ghost"
+                            size="icon-sm"
+                            className="text-muted-foreground"
+                            aria-label={m.seeds.qrReprint}
+                            onClick={() => setQrLot(lot)}
+                          >
+                            <QrCodeIcon />
+                          </Button>
                           <DeleteSeedLotButton lot={lot} />
                         </div>
                       </div>
@@ -196,6 +235,15 @@ export function SeedsView() {
         onOpenChange={(next) => {
           if (!next) {
             setSelected(null)
+          }
+        }}
+      />
+      <SeedLotQrSheet
+        lot={qrLot ? seedLotQrData(locale, m, qrLot) : null}
+        open={qrLot !== null}
+        onOpenChange={(next) => {
+          if (!next) {
+            setQrLot(null)
           }
         }}
       />
@@ -259,4 +307,28 @@ function DeleteSeedLotButton({ lot }: { lot: DisplaySeedLot }) {
       </AlertDialogContent>
     </AlertDialog>
   )
+}
+
+function seedLotQrData(
+  locale: Locale,
+  m: Messages,
+  lot: DisplaySeedLot
+): SeedLotQrData {
+  const title = lot.speciesName
+    ? `${lot.speciesName} · ${lot.cultivarName}`
+    : lot.cultivarName
+  const packedDate = lot.packedAt ? parseISO(lot.packedAt) : null
+  const packedValid = packedDate && !Number.isNaN(packedDate.getTime())
+  const packedLabel = packedValid
+    ? interpolate(m.seeds.packed, {
+        date: format(packedDate, "d MMMM yyyy", {
+          locale: dateFnsLocale(locale),
+        }),
+      })
+    : m.seeds.packedUnknown
+  return {
+    id: lot.id,
+    title,
+    meta: `${formatSeedQuantityLabel(m, lot.quantity, lot.unit)} · ${packedLabel}`,
+  }
 }

@@ -1,0 +1,15 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 640 400" role="img" aria-label="Buckwheat">
+  <defs>
+    <linearGradient id="bg-buckwheat" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0%" stop-color="#3d6b4f"/>
+      <stop offset="100%" stop-color="#1f3d2c"/>
+    </linearGradient>
+  </defs>
+  <rect width="640" height="400" fill="url(#bg-buckwheat)"/>
+  <rect x="312" y="210" width="16" height="120" rx="8" fill="#7fbf63"/>
+  <polygon points="320,80 360,150 280,150" fill="#8a2e3c"/>
+  <polygon points="250,160 290,220 210,220" fill="#a33b4a"/>
+  <polygon points="390,155 430,215 350,215" fill="#a33b4a"/>
+  <circle cx="300" cy="120" r="10" fill="#f3eedc"/>
+  <circle cx="345" cy="125" r="10" fill="#f7f1e0"/>
+</svg>

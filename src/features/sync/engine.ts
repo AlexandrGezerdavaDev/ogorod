@@ -196,6 +196,11 @@ async function applyPull(db: NonNullable<typeof localDb>, result: PullResult) {
       db.species,
       db.cultivar,
       db.disease,
+      db.classificationGroup,
+      db.classificationValue,
+      db.speciesClassification,
+      db.speciesDisease,
+      db.careProfile,
       db.fields,
       db.plantings,
       db.observations,
@@ -205,36 +210,11 @@ async function applyPull(db: NonNullable<typeof localDb>, result: PullResult) {
     ],
     async () => {
       for (const change of result.kb.changes) {
-        if (!change.record) {
+        if (change.operation === "delete" || !change.record) {
+          await deleteKbRecord(db, change.entity, change.entityId)
           continue
         }
-        if (change.entity === "species") {
-          await db.species.put({
-            id: String(change.record.id),
-            scientificName: String(change.record.scientificName ?? ""),
-            commonNameUk: String(change.record.commonNameUk ?? ""),
-            commonNameEn: change.record.commonNameEn
-              ? String(change.record.commonNameEn)
-              : null,
-            category: change.record.category
-              ? String(change.record.category)
-              : "vegetable",
-          })
-        }
-        if (change.entity === "cultivar") {
-          await db.cultivar.put({
-            id: String(change.record.id),
-            speciesId: String(change.record.speciesId ?? ""),
-            name: String(change.record.name ?? ""),
-          })
-        }
-        if (change.entity === "disease") {
-          await db.disease.put({
-            id: String(change.record.id),
-            nameUk: String(change.record.nameUk ?? ""),
-            nameEn: change.record.nameEn ? String(change.record.nameEn) : null,
-          })
-        }
+        await putKbRecord(db, change.entity, change.entityId, change.record)
       }
 
       for (const change of result.changes) {
@@ -250,6 +230,95 @@ async function applyPull(db: NonNullable<typeof localDb>, result: PullResult) {
       })
     }
   )
+}
+
+async function deleteKbRecord(
+  db: NonNullable<typeof localDb>,
+  entity: string,
+  entityId: string
+) {
+  if (entity === "species") await db.species.delete(entityId)
+  if (entity === "cultivar") await db.cultivar.delete(entityId)
+  if (entity === "disease") await db.disease.delete(entityId)
+  if (entity === "classification_group") await db.classificationGroup.delete(entityId)
+  if (entity === "classification_value") await db.classificationValue.delete(entityId)
+  if (entity === "species_classification") await db.speciesClassification.delete(entityId)
+  if (entity === "species_disease") await db.speciesDisease.delete(entityId)
+  if (entity === "care_profile") await db.careProfile.delete(entityId)
+}
+
+async function putKbRecord(
+  db: NonNullable<typeof localDb>,
+  entity: string,
+  entityId: string,
+  record: Record<string, unknown>
+) {
+  if (entity === "species") {
+    await db.species.put({
+      id: String(record.id),
+      scientificName: String(record.scientificName ?? ""),
+      commonNameUk: String(record.commonNameUk ?? ""),
+      commonNameEn: record.commonNameEn ? String(record.commonNameEn) : null,
+    })
+  }
+  if (entity === "cultivar") {
+    await db.cultivar.put({
+      id: String(record.id),
+      speciesId: String(record.speciesId ?? ""),
+      name: String(record.name ?? ""),
+    })
+  }
+  if (entity === "disease") {
+    await db.disease.put({
+      id: String(record.id),
+      nameUk: String(record.nameUk ?? ""),
+      nameEn: record.nameEn ? String(record.nameEn) : null,
+    })
+  }
+  if (entity === "classification_group") {
+    await db.classificationGroup.put({
+      id: String(record.id),
+      nameUk: String(record.nameUk ?? ""),
+      nameEn: record.nameEn ? String(record.nameEn) : null,
+      type: String(record.type ?? ""),
+    })
+  }
+  if (entity === "classification_value") {
+    await db.classificationValue.put({
+      id: String(record.id),
+      groupId: String(record.groupId ?? ""),
+      nameUk: String(record.nameUk ?? ""),
+      nameEn: record.nameEn ? String(record.nameEn) : null,
+    })
+  }
+  if (entity === "species_classification") {
+    const speciesId = String(record.speciesId ?? "")
+    const classificationValueId = String(record.classificationValueId ?? "")
+    await db.speciesClassification.put({
+      id: entityId || `${speciesId}::${classificationValueId}`,
+      speciesId,
+      classificationValueId,
+    })
+  }
+  if (entity === "species_disease") {
+    const speciesId = String(record.speciesId ?? "")
+    const diseaseId = String(record.diseaseId ?? "")
+    await db.speciesDisease.put({
+      id: entityId || `${speciesId}::${diseaseId}`,
+      speciesId,
+      diseaseId,
+    })
+  }
+  if (entity === "care_profile") {
+    await db.careProfile.put({
+      id: String(record.id),
+      speciesId: String(record.speciesId ?? ""),
+      imageUrl: record.imageUrl ? String(record.imageUrl) : null,
+      growing: (record.growing as Record<string, Record<string, string>>) ?? {},
+      genetics: (record.genetics as Record<string, Record<string, string>>) ?? {},
+      usage: (record.usage as Record<string, Record<string, string>>) ?? {},
+    })
+  }
 }
 
 async function putFarmRecord(

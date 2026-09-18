@@ -1,7 +1,11 @@
-"use client"
+import { Suspense } from "react"
 
 import { SeedsView } from "@/components/seeds-view"
 
 export default function SeedsPage() {
-  return <SeedsView />
+  return (
+    <Suspense>
+      <SeedsView />
+    </Suspense>
+  )
 }

@@ -9,7 +9,7 @@ import {
 
 import type { Messages } from "@/i18n/messages"
 
-export type AppRoute = "/" | "/plants" | "/scan" | "/calendar" | "/seeds" | "/settings"
+export type AppRoute = "/" | "/plants" | "/scan" | "/calendar" | "/seeds" | "/settings" | "/kb"
 
 export function plantsHref(spaceId?: string | null) {
   if (!spaceId) {
@@ -41,4 +41,5 @@ export const pageKeys: Record<AppRoute, keyof Messages["pages"]> = {
   "/calendar": "calendar",
   "/seeds": "seeds",
   "/settings": "settings",
+  "/kb": "kb",
 }

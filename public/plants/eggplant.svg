@@ -1,0 +1,12 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 640 400" role="img" aria-label="Eggplant">
+  <defs>
+    <linearGradient id="bg-eggplant" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0%" stop-color="#3d6b4f"/>
+      <stop offset="100%" stop-color="#1f3d2c"/>
+    </linearGradient>
+  </defs>
+  <rect width="640" height="400" fill="url(#bg-eggplant)"/>
+  <ellipse cx="330" cy="230" rx="70" ry="110" fill="#5b2c8a"/>
+  <ellipse cx="330" cy="120" rx="36" ry="16" fill="#2f8f4e"/>
+  <path d="M318 118 C322 88 348 88 352 118" fill="none" stroke="#245c36" stroke-width="8"/>
+</svg>

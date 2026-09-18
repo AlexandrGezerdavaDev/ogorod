@@ -64,6 +64,13 @@
       "when": 1789395285999,
       "tag": "0008_planting_photo_url",
       "breakpoints": true
+    },
+    {
+      "idx": 9,
+      "version": "7",
+      "when": 1789651779130,
+      "tag": "0009_silky_vindicator",
+      "breakpoints": true
     }
   ]
 }

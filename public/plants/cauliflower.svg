@@ -1,0 +1,14 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 640 400" role="img" aria-label="Cauliflower">
+  <defs>
+    <linearGradient id="bg-cauliflower" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0%" stop-color="#3d6b4f"/>
+      <stop offset="100%" stop-color="#1f3d2c"/>
+    </linearGradient>
+  </defs>
+  <rect width="640" height="400" fill="url(#bg-cauliflower)"/>
+  <ellipse cx="250" cy="250" rx="50" ry="90" fill="#3d8c3a"/>
+  <ellipse cx="390" cy="250" rx="50" ry="90" fill="#2f7a32"/>
+  <circle cx="290" cy="190" r="42" fill="#f3eedc"/>
+  <circle cx="350" cy="185" r="46" fill="#efe6c9"/>
+  <circle cx="320" cy="160" r="40" fill="#f7f1e0"/>
+</svg>

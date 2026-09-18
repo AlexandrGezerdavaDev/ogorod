@@ -1,0 +1,13 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 640 400" role="img" aria-label="Potato">
+  <defs>
+    <linearGradient id="bg-potato" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0%" stop-color="#3d6b4f"/>
+      <stop offset="100%" stop-color="#1f3d2c"/>
+    </linearGradient>
+  </defs>
+  <rect width="640" height="400" fill="url(#bg-potato)"/>
+  <ellipse cx="320" cy="210" rx="130" ry="90" fill="#c4a574"/>
+  <circle cx="270" cy="190" r="8" fill="#8a6a44"/>
+  <circle cx="350" cy="230" r="7" fill="#8a6a44"/>
+  <circle cx="310" cy="250" r="6" fill="#8a6a44"/>
+</svg>

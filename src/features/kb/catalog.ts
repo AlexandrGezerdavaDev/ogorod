@@ -1,9 +1,21 @@
 import type { Locale } from "@/i18n/config"
 import { catalogCommonName, catalogCultivarName } from "@/i18n/format"
 
-export const speciesCategories = ["vegetable", "herb", "berry"] as const
+/** Catalog filter uses agricultural_use classification values (legacy category ids). */
+export const agriculturalUseFilters = [
+  "vegetable",
+  "herb",
+  "berry",
+  "cereal",
+  "legume",
+  "oilseed",
+] as const
 
-export type SpeciesCategory = (typeof speciesCategories)[number]
+export type AgriculturalUseFilter = (typeof agriculturalUseFilters)[number]
+
+/** @deprecated Use AgriculturalUseFilter — kept for gradual UI rename */
+export type SpeciesCategory = AgriculturalUseFilter
+export const speciesCategories = agriculturalUseFilters
 
 export type CatalogCultivar = {
   id: string
@@ -15,21 +27,35 @@ export type CatalogSpecies = {
   scientificName: string
   commonNameUk: string
   commonNameEn?: string | null
-  category: SpeciesCategory
+  /** Primary agricultural_use filter key */
+  agriculturalUse: AgriculturalUseFilter
+  classificationValueIds: string[]
   cultivars: CatalogCultivar[]
 }
 
-export function isSpeciesCategory(
+export function isAgriculturalUseFilter(
   value: string | null | undefined
-): value is SpeciesCategory {
-  return value === "vegetable" || value === "herb" || value === "berry"
+): value is AgriculturalUseFilter {
+  return (
+    value === "vegetable" ||
+    value === "herb" ||
+    value === "berry" ||
+    value === "cereal" ||
+    value === "legume" ||
+    value === "oilseed"
+  )
 }
 
-export function parseSpeciesCategory(
+export function parseAgriculturalUseFilter(
   value: string | null | undefined
-): SpeciesCategory {
-  return isSpeciesCategory(value) ? value : "vegetable"
+): AgriculturalUseFilter {
+  return isAgriculturalUseFilter(value) ? value : "vegetable"
 }
+
+/** @deprecated */
+export const isSpeciesCategory = isAgriculturalUseFilter
+/** @deprecated */
+export const parseSpeciesCategory = parseAgriculturalUseFilter
 
 function matchesQuery(
   locale: Locale,
@@ -57,14 +83,55 @@ function matchesQuery(
 export function filterCatalog(
   items: CatalogSpecies[],
   query: string,
-  categories: readonly SpeciesCategory[],
+  uses: readonly AgriculturalUseFilter[],
   locale: Locale
 ) {
   const normalized = query.trim().toLowerCase()
   return items.filter((item) => {
-    if (categories.length > 0 && !categories.includes(item.category)) {
-      return false
+    if (uses.length > 0) {
+      const plantUses = agriculturalUsesFromValueIds(item.classificationValueIds)
+      if (!uses.some((use) => plantUses.includes(use))) {
+        return false
+      }
     }
     return matchesQuery(locale, item, normalized)
   })
+}
+
+const VALUE_ID_TO_FILTER: Record<string, AgriculturalUseFilter> = {
+  kb_cv_vegetable: "vegetable",
+  kb_cv_herb: "herb",
+  kb_cv_berry: "berry",
+  kb_cv_cereal: "cereal",
+  kb_cv_legume: "legume",
+  kb_cv_fabaceae: "legume",
+  kb_cv_oilseed: "oilseed",
+}
+
+const FILTER_PRIORITY: AgriculturalUseFilter[] = [
+  "vegetable",
+  "herb",
+  "berry",
+  "cereal",
+  "legume",
+  "oilseed",
+]
+
+export function agriculturalUsesFromValueIds(
+  valueIds: string[]
+): AgriculturalUseFilter[] {
+  const found = new Set<AgriculturalUseFilter>()
+  for (const id of valueIds) {
+    const filter = VALUE_ID_TO_FILTER[id]
+    if (filter) {
+      found.add(filter)
+    }
+  }
+  return FILTER_PRIORITY.filter((key) => found.has(key))
+}
+
+export function agriculturalUseFromValueIds(
+  valueIds: string[]
+): AgriculturalUseFilter {
+  return agriculturalUsesFromValueIds(valueIds)[0] ?? "vegetable"
 }

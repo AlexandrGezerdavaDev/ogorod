@@ -1,4 +1,9 @@
 import type { Locale } from "@/i18n/config"
+import { CEREAL_PROFILES } from "@/features/kb/cereal-profiles"
+import { GARDEN_VEGETABLE_PROFILES } from "@/features/kb/garden-vegetable-profiles"
+import { LEGUME_PROFILES } from "@/features/kb/legume-profiles"
+import { BERRY_PROFILES } from "@/features/kb/berry-profiles"
+import { OILSEED_PROFILES } from "@/features/kb/oilseed-profiles"
 
 export type LocalizedText = Record<Locale, string>
 
@@ -121,7 +126,7 @@ const PROFILES: Record<string, PlantProfile> = {
       culinary: t("Свіжі салати, соуси, сік, консервація", "Fresh salads, sauces, juice, canning", "Свежие салаты, соусы, сок, консервация"),
       harvest: t("Коли плоди забарвлені й пружні", "When fruit is colored and firm", "Когда плоды окрашены и упругие"),
       storage: t("Прохолодно, 10–13 °C, без холодильника", "Cool, 10–13 °C, not in the fridge", "Прохладно, 10–13 °C, без холодильника"),
-    }),
+    }),
   },
   kb_species_cucumis_sativus: {
     imageUrl: "/plants/cucumber.svg",
@@ -166,7 +171,7 @@ const PROFILES: Record<string, PlantProfile> = {
       culinary: t("Свіжі салати, маринування, засолювання", "Fresh salads, pickling, brining", "Свежие салаты, маринование, засолка"),
       harvest: t("Регулярно, не перерощувати", "Regularly, do not let fruit overgrow", "Регулярно, не переращивать"),
       storage: t("Коротко, 7–10 °C, висока вологість", "Short term, 7–10 °C, high humidity", "Кратко, 7–10 °C, высокая влажность"),
-    }),
+    }),
   },
   kb_species_capsicum_annuum: {
     imageUrl: "/plants/pepper.svg",
@@ -211,7 +216,7 @@ const PROFILES: Record<string, PlantProfile> = {
       culinary: t("Свіжі, фарширування, лечо, сушіння", "Fresh, stuffing, stew, drying", "Свежие, фарширование, лечо, сушка"),
       harvest: t("Технічна або біологічна стиглість", "At technical or full ripeness", "Техническая или биологическая спелость"),
       storage: t("Холодильник 7–10 днів, або сушіння", "Fridge 7–10 days, or dry", "Холодильник 7–10 дней, или сушка"),
-    }),
+    }),
   },
   kb_species_raphanus_sativus: {
     imageUrl: "/plants/radish.svg",
@@ -256,7 +261,7 @@ const PROFILES: Record<string, PlantProfile> = {
       culinary: t("Салати, закуски, окріп недовго", "Salads, snacks, brief cooking", "Салаты, закуски, коротко в кипятке"),
       harvest: t("Не затримувати, інакше дерев’яніє", "Do not delay or it turns woody", "Не задерживать, иначе деревенеет"),
       storage: t("Коротко в холодильнику з гичкою зрізаною", "Short fridge storage, tops trimmed", "Кратко в холодильнике, ботва срезана"),
-    }),
+    }),
   },
   kb_species_ocimum_basilicum: {
     imageUrl: "/plants/basil.svg",
@@ -301,7 +306,7 @@ const PROFILES: Record<string, PlantProfile> = {
       culinary: t("Песто, салати, томати, олія", "Pesto, salads, tomatoes, oil", "Песто, салаты, томаты, масло"),
       harvest: t("До цвітіння, зрізати верхівки", "Before flowering, pinch tips", "До цветения, срезать верхушки"),
       storage: t("Свіжим коротко, або сушіння / заморозка", "Briefly fresh, or dry / freeze", "Свежим коротко, или сушка / заморозка"),
-    }),
+    }),
   },
   kb_species_mentha_piperita: {
     imageUrl: "/plants/mint.svg",
@@ -346,7 +351,7 @@ const PROFILES: Record<string, PlantProfile> = {
       culinary: t("Настої, десерти, соуси, лимонад", "Infusions, desserts, sauces, lemonade", "Настои, десерты, соусы, лимонад"),
       harvest: t("До цвітіння, кілька зрізів за сезон", "Before flowering, several cuts a season", "До цветения, несколько срезок за сезон"),
       storage: t("Сушіння в тіні або заморозка", "Shade-dry or freeze", "Сушка в тени или заморозка"),
-    }),
+    }),
   },
   kb_species_fragaria_ananassa: {
     imageUrl: "/plants/strawberry.svg",
@@ -391,7 +396,7 @@ const PROFILES: Record<string, PlantProfile> = {
       culinary: t("Свіжі, варення, заморозка, десерти", "Fresh, jam, freezing, desserts", "Свежие, варенье, заморозка, десерты"),
       harvest: t("У повній стиглості, вранці", "Fully ripe, in the morning", "В полной спелости, утром"),
       storage: t("Коротко в холоді, краще одразу їсти або заморозити", "Briefly chilled; eat or freeze soon", "Кратко в холоде, лучше сразу есть или заморозить"),
-    }),
+    }),
   },
 }
 
@@ -399,7 +404,15 @@ export function getPlantProfile(speciesId: string | null | undefined): PlantProf
   if (!speciesId) {
     return DEFAULT_PROFILE
   }
-  return PROFILES[speciesId] ?? DEFAULT_PROFILE
+  return (
+    PROFILES[speciesId] ??
+    GARDEN_VEGETABLE_PROFILES[speciesId] ??
+    CEREAL_PROFILES[speciesId] ??
+    LEGUME_PROFILES[speciesId] ??
+    OILSEED_PROFILES[speciesId] ??
+    BERRY_PROFILES[speciesId] ??
+    DEFAULT_PROFILE
+  )
 }
 
 export function profileText(value: LocalizedText, locale: Locale) {

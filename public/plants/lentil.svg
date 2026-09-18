@@ -1,0 +1,15 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 640 400" role="img" aria-label="Lentil">
+  <defs>
+    <linearGradient id="bg-lentil" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0%" stop-color="#3d6b4f"/>
+      <stop offset="100%" stop-color="#1f3d2c"/>
+    </linearGradient>
+  </defs>
+  <rect width="640" height="400" fill="url(#bg-lentil)"/>
+  <ellipse cx="250" cy="210" rx="50" ry="18" fill="#c45c26"/>
+  <ellipse cx="320" cy="190" rx="50" ry="18" fill="#d96b1c"/>
+  <ellipse cx="390" cy="215" rx="50" ry="18" fill="#c45c26"/>
+  <circle cx="250" cy="210" r="14" fill="#e07a28"/>
+  <circle cx="320" cy="190" r="14" fill="#f08a30"/>
+  <circle cx="390" cy="215" r="14" fill="#e07a28"/>
+</svg>

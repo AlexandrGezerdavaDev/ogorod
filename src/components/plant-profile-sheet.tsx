@@ -2,14 +2,15 @@
 
 import * as React from "react"
 import {
+  BugIcon,
   DnaIcon,
   LeafyGreenIcon,
   SproutIcon,
+  TagsIcon,
   UtensilsIcon,
 } from "lucide-react"
 
 import {
-  getPlantProfile,
   PROFILE_SECTIONS,
   SECTION_TRAIT_KEYS,
   profileText,
@@ -18,9 +19,11 @@ import {
   type PlantTraitKey,
   type ProfileSection,
 } from "@/features/kb/plant-profiles"
+import { usePlantProfile } from "@/features/kb/use-plant-profile"
 import { useIsMobile } from "@/hooks/use-mobile"
 import { cn } from "@/lib/utils"
 import { useI18n } from "@/i18n/provider"
+import { Badge } from "@/components/ui/badge"
 import {
   Sheet,
   SheetContent,
@@ -57,7 +60,8 @@ export function PlantProfileSheet({
 }) {
   const { messages: m } = useI18n()
   const isMobile = useIsMobile()
-  const profile = getPlantProfile(speciesId)
+  const { profile, classifications, diseases, fromCareProfile } =
+    usePlantProfile(speciesId)
   const resolvedImage = imageUrl?.trim() || profile.imageUrl
   const [imageFailed, setImageFailed] = React.useState(false)
 
@@ -90,13 +94,57 @@ export function PlantProfileSheet({
             />
           </div>
           <SheetHeader className="min-w-0 flex-1 gap-1 p-0 text-left">
-            <p className="text-xs text-muted-foreground">{m.plants.profileDraft}</p>
+            <p className="text-xs text-muted-foreground">
+              {fromCareProfile ? m.plants.profileFromKb : m.plants.profileDraft}
+            </p>
             <SheetTitle className="text-lg">{title}</SheetTitle>
             {description ? (
               <SheetDescription>{description}</SheetDescription>
             ) : null}
           </SheetHeader>
         </div>
+
+        {(classifications.length > 0 || diseases.length > 0) && (
+          <div className="flex flex-col gap-3 px-5 pt-4">
+            {classifications.length > 0 ? (
+              <div className="flex flex-col gap-2">
+                <p className="flex items-center gap-1.5 text-xs font-medium text-muted-foreground">
+                  <TagsIcon className="size-3.5" />
+                  {m.plants.profileClassifications}
+                </p>
+                <div className="flex flex-wrap gap-1.5">
+                  {classifications.map((chip) => (
+                    <Badge
+                      key={chip.valueId}
+                      variant="secondary"
+                      className="font-normal"
+                    >
+                      <span className="text-muted-foreground">
+                        {chip.groupName}:
+                      </span>{" "}
+                      {chip.valueName}
+                    </Badge>
+                  ))}
+                </div>
+              </div>
+            ) : null}
+            {diseases.length > 0 ? (
+              <div className="flex flex-col gap-2">
+                <p className="flex items-center gap-1.5 text-xs font-medium text-muted-foreground">
+                  <BugIcon className="size-3.5" />
+                  {m.plants.profileDiseases}
+                </p>
+                <div className="flex flex-wrap gap-1.5">
+                  {diseases.map((disease) => (
+                    <Badge key={disease.id} variant="outline" className="font-normal">
+                      {disease.name}
+                    </Badge>
+                  ))}
+                </div>
+              </div>
+            ) : null}
+          </div>
+        )}
 
         <Tabs key={speciesId ?? "profile"} defaultValue="taxonomy" className="gap-3 pt-4">
           <TabsList
@@ -198,16 +246,16 @@ function ProfileImage({
 
   return (
     <div className="flex size-full items-center justify-center text-muted-foreground">
-      <SproutIcon className="size-10 md:size-7" />
+      <SproutIcon className="size-10 opacity-40" />
     </div>
   )
 }
 
 function TraitRow({ label, value }: { label: string; value: string }) {
   return (
-    <div className="border-t py-3">
+    <div className="border-b border-border/60 py-3">
       <dt className="text-xs text-muted-foreground">{label}</dt>
-      <dd className="mt-0.5 text-sm text-foreground">{value}</dd>
+      <dd className="mt-0.5 text-sm">{value}</dd>
     </div>
   )
 }

@@ -1,0 +1,14 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 640 400" role="img" aria-label="Pea">
+  <defs>
+    <linearGradient id="bg-pea" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0%" stop-color="#3d6b4f"/>
+      <stop offset="100%" stop-color="#1f3d2c"/>
+    </linearGradient>
+  </defs>
+  <rect width="640" height="400" fill="url(#bg-pea)"/>
+  <rect x="160" y="175" width="320" height="60" rx="30" fill="#6aa84f"/>
+  <circle cx="230" cy="205" r="18" fill="#c5e8a8"/>
+  <circle cx="290" cy="205" r="18" fill="#c5e8a8"/>
+  <circle cx="350" cy="205" r="18" fill="#c5e8a8"/>
+  <circle cx="410" cy="205" r="18" fill="#c5e8a8"/>
+</svg>

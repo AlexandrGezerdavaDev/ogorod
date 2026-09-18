@@ -1,7 +1,8 @@
 "use client"
 
 import * as React from "react"
-import { LogOutIcon, RefreshCwIcon } from "lucide-react"
+import { BookOpenIcon, LogOutIcon, RefreshCwIcon } from "lucide-react"
+import Link from "next/link"
 import { useTheme } from "next-themes"
 import { useRouter } from "next/navigation"
 import { toast } from "sonner"
@@ -80,6 +81,7 @@ export function SettingsForm() {
   return (
     <div className="flex flex-col gap-4">
       <ProfileCard />
+      <KbAdminCard />
       <NotificationsCard />
       <GardenCard />
       <AppearanceCard />
@@ -797,6 +799,25 @@ function DataCard() {
             </AlertDialogContent>
           </AlertDialog>
         </div>
+      </CardContent>
+    </Card>
+  )
+}
+
+function KbAdminCard() {
+  const { messages: m } = useI18n()
+
+  return (
+    <Card>
+      <CardHeader>
+        <CardTitle>{m.settings.kbAdmin.title}</CardTitle>
+        <CardDescription>{m.settings.kbAdmin.desc}</CardDescription>
+      </CardHeader>
+      <CardContent>
+        <Button render={<Link href="/kb" />} variant="outline" nativeButton={false}>
+          <BookOpenIcon data-icon="inline-start" />
+          {m.settings.kbAdmin.open}
+        </Button>
       </CardContent>
     </Card>
   )

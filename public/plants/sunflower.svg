@@ -1,0 +1,18 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 640 400" role="img" aria-label="Sunflower">
+  <defs>
+    <linearGradient id="bg-sunflower" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0%" stop-color="#3d6b4f"/>
+      <stop offset="100%" stop-color="#1f3d2c"/>
+    </linearGradient>
+  </defs>
+  <rect width="640" height="400" fill="url(#bg-sunflower)"/>
+  <rect x="308" y="230" width="24" height="130" rx="10" fill="#7fbf63"/>
+  <ellipse cx="250" cy="175" rx="28" ry="55" fill="#f0c419" transform="rotate(-40 250 175)"/>
+  <ellipse cx="390" cy="175" rx="28" ry="55" fill="#f0c419" transform="rotate(40 390 175)"/>
+  <ellipse cx="320" cy="115" rx="28" ry="55" fill="#ffd24a"/>
+  <ellipse cx="320" cy="235" rx="28" ry="55" fill="#e0b000"/>
+  <ellipse cx="255" cy="215" rx="28" ry="50" fill="#f0c419" transform="rotate(-70 255 215)"/>
+  <ellipse cx="385" cy="215" rx="28" ry="50" fill="#f0c419" transform="rotate(70 385 215)"/>
+  <circle cx="320" cy="175" r="48" fill="#6b4226"/>
+  <circle cx="320" cy="175" r="28" fill="#4a2c18"/>
+</svg>

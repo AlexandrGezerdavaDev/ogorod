@@ -1,0 +1,15 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 640 400" role="img" aria-label="Raspberry">
+  <defs>
+    <linearGradient id="bg-raspberry" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0%" stop-color="#3d6b4f"/>
+      <stop offset="100%" stop-color="#1f3d2c"/>
+    </linearGradient>
+  </defs>
+  <rect width="640" height="400" fill="url(#bg-raspberry)"/>
+  <circle cx="290" cy="175" r="22" fill="#c45c6a"/>
+  <circle cx="325" cy="155" r="22" fill="#d96b78"/>
+  <circle cx="355" cy="180" r="22" fill="#c45c6a"/>
+  <circle cx="320" cy="200" r="22" fill="#b04a58"/>
+  <circle cx="300" cy="210" r="18" fill="#c45c6a"/>
+  <ellipse cx="340" cy="120" rx="28" ry="14" fill="#4aa14a" transform="rotate(20 340 120)"/>
+</svg>

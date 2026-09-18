@@ -1,0 +1,14 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 640 400" role="img" aria-label="Barley">
+  <defs>
+    <linearGradient id="bg-barley" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0%" stop-color="#3d6b4f"/>
+      <stop offset="100%" stop-color="#1f3d2c"/>
+    </linearGradient>
+  </defs>
+  <rect width="640" height="400" fill="url(#bg-barley)"/>
+  <rect x="312" y="210" width="16" height="130" rx="8" fill="#cfe8a8"/>
+  <ellipse cx="320" cy="150" rx="20" ry="70" fill="#d9b56a"/>
+  <path d="M332 95 L400 20" fill="none" stroke="#c49a4a" stroke-width="3"/>
+  <path d="M308 95 L240 20" fill="none" stroke="#c49a4a" stroke-width="3"/>
+  <path d="M320 90 L320 18" fill="none" stroke="#c49a4a" stroke-width="3"/>
+</svg>

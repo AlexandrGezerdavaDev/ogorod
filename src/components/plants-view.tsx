@@ -39,14 +39,14 @@ import {
   AlertDialogTrigger,
 } from "@/components/ui/alert-dialog"
 import {
+  agriculturalUseFromValueIds,
   filterCatalog,
-  parseSpeciesCategory,
   speciesCategories,
   type CatalogSpecies,
   type SpeciesCategory,
 } from "@/features/kb/catalog"
-import { getPlantProfile } from "@/features/kb/plant-profiles"
 import { useKbSpecies } from "@/features/kb/use-kb-species"
+import { resolveSpeciesImageUrl } from "@/features/kb/resolve-profile"
 import { Button } from "@/components/ui/button"
 import {
   Card,
@@ -190,6 +190,7 @@ function MyPlants({
 }) {
   const { locale, messages: m } = useI18n()
   const { plantings, isPending } = usePlantings({ fieldId })
+  const kb = useKbSpecies()
   const [selected, setSelected] = useState<DisplayPlanting | null>(null)
 
   if (isPending) {
@@ -252,7 +253,10 @@ function MyPlants({
                 }}
               >
                 <PlantCardImage
-                  src={plant.photoUrl || getPlantProfile(plant.speciesId).imageUrl}
+                  src={
+                    plant.photoUrl ||
+                    resolveSpeciesImageUrl(plant.speciesId, kb.data)
+                  }
                   alt={plant.speciesName || plant.cultivarName}
                 />
                 <div className="flex min-w-0 flex-1 flex-col gap-2 p-4 md:py-3 md:pr-4 md:pl-0">
@@ -414,11 +418,18 @@ function CatalogPlants() {
   const grouped = useMemo(() => {
     const rows = data?.species ?? []
     const cultivars = data?.cultivars ?? []
-    return rows.map((item) => ({
-      ...item,
-      category: parseSpeciesCategory(item.category),
-      cultivars: cultivars.filter((cultivar) => cultivar.speciesId === item.id),
-    }))
+    const links = data?.speciesClassifications ?? []
+    return rows.map((item) => {
+      const classificationValueIds = links
+        .filter((link) => link.speciesId === item.id)
+        .map((link) => link.classificationValueId)
+      return {
+        ...item,
+        agriculturalUse: agriculturalUseFromValueIds(classificationValueIds),
+        classificationValueIds,
+        cultivars: cultivars.filter((cultivar) => cultivar.speciesId === item.id),
+      }
+    })
   }, [data])
 
   const filtered = useMemo(
@@ -598,14 +609,14 @@ function CatalogPlants() {
                 }}
               >
                 <PlantCardImage
-                  src={getPlantProfile(item.id).imageUrl}
+                  src={resolveSpeciesImageUrl(item.id, data)}
                   alt={title}
                 />
                 <div className="flex min-w-0 flex-1 flex-col gap-1.5 p-4 md:py-3 md:pr-4 md:pl-0">
                   <div className="flex items-start justify-between gap-3">
                     <CardTitle className="truncate">{title}</CardTitle>
                     <span className="shrink-0 text-xs text-muted-foreground">
-                      {m.plants.catalogCategory[item.category]}
+                      {m.plants.catalogCategory[item.agriculturalUse]}
                     </span>
                   </div>
                   <CardDescription

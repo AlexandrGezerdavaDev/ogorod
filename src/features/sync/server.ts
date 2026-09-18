@@ -3,6 +3,9 @@ import { and, asc, eq, gt, inArray } from "drizzle-orm"
 import { db } from "@/db"
 import { appendFarmChange } from "@/db/change-log"
 import {
+  careProfile,
+  classificationGroup,
+  classificationValue,
   cultivar,
   device,
   disease,
@@ -14,11 +17,21 @@ import {
   planting,
   seedLot,
   species,
+  speciesClassification,
+  speciesDisease,
   syncReceipt,
 } from "@/db/schema"
 
 export type FarmEntity = "field" | "planting" | "observation" | "harvest" | "seed_lot"
-export type KbEntity = "species" | "cultivar" | "disease"
+export type KbEntity =
+  | "species"
+  | "cultivar"
+  | "disease"
+  | "classification_group"
+  | "classification_value"
+  | "species_classification"
+  | "species_disease"
+  | "care_profile"
 export type SyncOperation = "upsert" | "delete"
 
 export type PushItem = {
@@ -616,8 +629,69 @@ async function loadKbRow(entity: KbEntity, entityId: string) {
     const [row] = await db.select().from(cultivar).where(eq(cultivar.id, entityId)).limit(1)
     return row ?? null
   }
-  const [row] = await db.select().from(disease).where(eq(disease.id, entityId)).limit(1)
-  return row ?? null
+  if (entity === "disease") {
+    const [row] = await db.select().from(disease).where(eq(disease.id, entityId)).limit(1)
+    return row ?? null
+  }
+  if (entity === "classification_group") {
+    const [row] = await db
+      .select()
+      .from(classificationGroup)
+      .where(eq(classificationGroup.id, entityId))
+      .limit(1)
+    return row ?? null
+  }
+  if (entity === "classification_value") {
+    const [row] = await db
+      .select()
+      .from(classificationValue)
+      .where(eq(classificationValue.id, entityId))
+      .limit(1)
+    return row ?? null
+  }
+  if (entity === "species_classification") {
+    const [speciesId, classificationValueId] = entityId.split("::")
+    if (!speciesId || !classificationValueId) {
+      return null
+    }
+    const [row] = await db
+      .select()
+      .from(speciesClassification)
+      .where(
+        and(
+          eq(speciesClassification.speciesId, speciesId),
+          eq(speciesClassification.classificationValueId, classificationValueId)
+        )
+      )
+      .limit(1)
+    return row ?? null
+  }
+  if (entity === "species_disease") {
+    const [speciesId, diseaseId] = entityId.split("::")
+    if (!speciesId || !diseaseId) {
+      return null
+    }
+    const [row] = await db
+      .select()
+      .from(speciesDisease)
+      .where(
+        and(
+          eq(speciesDisease.speciesId, speciesId),
+          eq(speciesDisease.diseaseId, diseaseId)
+        )
+      )
+      .limit(1)
+    return row ?? null
+  }
+  if (entity === "care_profile") {
+    const [row] = await db
+      .select()
+      .from(careProfile)
+      .where(eq(careProfile.id, entityId))
+      .limit(1)
+    return row ?? null
+  }
+  return null
 }
 
 async function loadFarmRecords(

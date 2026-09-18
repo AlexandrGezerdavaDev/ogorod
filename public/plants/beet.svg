@@ -1,0 +1,13 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 640 400" role="img" aria-label="Beet">
+  <defs>
+    <linearGradient id="bg-beet" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0%" stop-color="#3d6b4f"/>
+      <stop offset="100%" stop-color="#1f3d2c"/>
+    </linearGradient>
+  </defs>
+  <rect width="640" height="400" fill="url(#bg-beet)"/>
+  <circle cx="320" cy="240" r="90" fill="#a33b4a"/>
+  <path d="M280 170 C270 90 230 60 210 30" fill="none" stroke="#2f8f4e" stroke-width="10"/>
+  <path d="M320 155 C325 80 310 50 300 20" fill="none" stroke="#3d8c3a" stroke-width="10"/>
+  <path d="M360 170 C390 90 430 60 450 30" fill="none" stroke="#2f8f4e" stroke-width="10"/>
+</svg>

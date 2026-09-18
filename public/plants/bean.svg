@@ -1,0 +1,13 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 640 400" role="img" aria-label="Bean">
+  <defs>
+    <linearGradient id="bg-bean" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0%" stop-color="#3d6b4f"/>
+      <stop offset="100%" stop-color="#1f3d2c"/>
+    </linearGradient>
+  </defs>
+  <rect width="640" height="400" fill="url(#bg-bean)"/>
+  <path d="M150 250 C220 120 420 120 490 250" fill="none" stroke="#6aa84f" stroke-width="36" stroke-linecap="round"/>
+  <circle cx="250" cy="175" r="14" fill="#2f7a32"/>
+  <circle cx="320" cy="155" r="14" fill="#2f7a32"/>
+  <circle cx="390" cy="175" r="14" fill="#2f7a32"/>
+</svg>

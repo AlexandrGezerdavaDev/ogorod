@@ -8,7 +8,6 @@ export type LocalSpecies = {
   scientificName: string
   commonNameUk: string
   commonNameEn?: string | null
-  category?: string | null
 }
 
 export type LocalCultivar = {
@@ -21,6 +20,41 @@ export type LocalDisease = {
   id: string
   nameUk: string
   nameEn?: string | null
+}
+
+export type LocalClassificationGroup = {
+  id: string
+  nameUk: string
+  nameEn?: string | null
+  type: string
+}
+
+export type LocalClassificationValue = {
+  id: string
+  groupId: string
+  nameUk: string
+  nameEn?: string | null
+}
+
+export type LocalSpeciesClassification = {
+  id: string
+  speciesId: string
+  classificationValueId: string
+}
+
+export type LocalSpeciesDisease = {
+  id: string
+  speciesId: string
+  diseaseId: string
+}
+
+export type LocalCareProfile = {
+  id: string
+  speciesId: string
+  imageUrl?: string | null
+  growing: Record<string, Record<string, string>>
+  genetics: Record<string, Record<string, string>>
+  usage: Record<string, Record<string, string>>
 }
 
 export type LocalField = {
@@ -103,6 +137,11 @@ export class OgorodDB extends Dexie {
   species!: EntityTable<LocalSpecies, "id">
   cultivar!: EntityTable<LocalCultivar, "id">
   disease!: EntityTable<LocalDisease, "id">
+  classificationGroup!: EntityTable<LocalClassificationGroup, "id">
+  classificationValue!: EntityTable<LocalClassificationValue, "id">
+  speciesClassification!: EntityTable<LocalSpeciesClassification, "id">
+  speciesDisease!: EntityTable<LocalSpeciesDisease, "id">
+  careProfile!: EntityTable<LocalCareProfile, "id">
   fields!: EntityTable<LocalField, "id">
   plantings!: EntityTable<LocalPlanting, "id">
   observations!: EntityTable<LocalObservation, "id">
@@ -218,6 +257,24 @@ export class OgorodDB extends Dexie {
       species: "id, scientificName, category",
       cultivar: "id, speciesId",
       disease: "id",
+      fields: "id, organizationId, syncStatus, version",
+      plantings: "id, organizationId, fieldId, speciesId, cultivarId, syncStatus, version",
+      observations: "id, organizationId, plantingId, syncStatus, version",
+      harvests: "id, organizationId, plantingId, syncStatus, version",
+      seedLots: "id, organizationId, speciesId, cultivarId, syncStatus, version",
+      outbox: "id, deviceId, entity, entityId, createdAt",
+      syncState: "id, deviceId",
+      weather: "id",
+    })
+    this.version(8).stores({
+      species: "id, scientificName",
+      cultivar: "id, speciesId",
+      disease: "id",
+      classificationGroup: "id, type",
+      classificationValue: "id, groupId",
+      speciesClassification: "id, speciesId, classificationValueId",
+      speciesDisease: "id, speciesId, diseaseId",
+      careProfile: "id, speciesId",
       fields: "id, organizationId, syncStatus, version",
       plantings: "id, organizationId, fieldId, speciesId, cultivarId, syncStatus, version",
       observations: "id, organizationId, plantingId, syncStatus, version",
